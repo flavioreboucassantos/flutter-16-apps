@@ -1,0 +1,12 @@
+flutter doctor # informa status do flutter no ambiente de desenvolvimento
+flutter doctor -v # detalha o status
+
+flutter create my_app --org br.com.flavioreboucassantos -a java # cria projeto para org específica e determina o java como linguagem do android
+
+flutter devices # lista devices
+flutter run # executa o app pela lista de devices
+flutter install -d emulator-5554 # instala o app no device específico
+
+flutter emulators # lista emuladores
+flutter emulators --launch Pixel_3a_API_30 # inicializa o emulador específico
+
