@@ -17,9 +17,9 @@ class _HomeState extends State<Home> {
     setState(() {
       _people += delta;
 
-      if(_people < 0) {
+      if (_people < 0) {
         _infoText = "Mundo invertido?!";
-      } else if(_people <= 10) {
+      } else if (_people <= 10) {
         _infoText = "Pode Entrar!";
       } else {
         _infoText = "Lotado!";
