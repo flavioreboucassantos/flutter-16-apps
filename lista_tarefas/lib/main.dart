@@ -21,9 +21,6 @@ class _HomeState extends State<Home> {
 
   List _toDoList = [];
 
-  Map<String, dynamic> _lastRemoved;
-  int _lastRemovedPos;
-
   @override
   void initState() {
     super.initState();
@@ -136,25 +133,24 @@ class _HomeState extends State<Home> {
       ),
       onDismissed: (direction) {
         setState(() {
-          _lastRemoved = _toDoList[index];
-          _lastRemovedPos = index;
+          var lastRemoved = _toDoList[index];
+          var lastRemovedPos = index;
           _toDoList.removeAt(index);
           _saveData();
 
           final snack = SnackBar(
-            content: Text('Tarefa "${_lastRemoved['title']}" removida!'),
+            content: Text('Tarefa "${lastRemoved['title']}" removida!'),
             action: SnackBarAction(
                 label: 'Desfazer',
                 onPressed: () {
                   setState(() {
-                    _toDoList.insert(_lastRemovedPos, _lastRemoved);
+                    _toDoList.insert(lastRemovedPos, lastRemoved);
                     _saveData();
                   });
                 }),
-            duration: Duration(seconds: 2),
+            duration: Duration(seconds: 3),
           );
 
-          ScaffoldMessenger.of(context).removeCurrentSnackBar();
           ScaffoldMessenger.of(context).showSnackBar(snack);
         });
       },
