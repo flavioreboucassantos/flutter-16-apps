@@ -1,3 +1,4 @@
+import 'package:chat/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,18 @@ Future<void> main() async {
   runApp(MyApp());
 
   await Firebase.initializeApp();
-  FirebaseFirestore.instance.collection('col').doc('doc').set({'texto': 'Daniel'});
+  /*
+  FirebaseFirestore.instance.collection('mensagens').doc().set({
+    'texto': 'Boa noite',
+    'from': 'Roberto',
+  });
+  FirebaseFirestore.instance
+      .collection('mensagens')
+      .doc('kV4qdMAgzP2B8SA4cKmz')
+      .snapshots()
+      .listen((dado) {
+    print(dado.data());
+  });*/
 }
 
 class MyApp extends StatelessWidget {
@@ -16,8 +28,11 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        iconTheme: IconThemeData(
+          color: Colors.blue,
+        ),
       ),
-      home: Container(),
+      home: ChatScreen(),
     );
   }
 }
