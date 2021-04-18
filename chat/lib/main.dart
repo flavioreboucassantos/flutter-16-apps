@@ -4,13 +4,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(MyApp());
 
-  await Firebase.initializeApp();
   /*
   FirebaseFirestore.instance.collection('mensagens').doc().set({
     'texto': 'Boa noite',
-    'from': 'Roberto',
+    'from': 'Pessoa',
   });
   FirebaseFirestore.instance
       .collection('mensagens')
