@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -20,12 +21,15 @@ class _ChatScreenState extends State<ChatScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   User _currentUser;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
     FirebaseAuth.instance.authStateChanges().listen((user) {
-      _currentUser = user;
+      setState(() {
+        _currentUser = user;
+      });
     });
   }
 
@@ -66,6 +70,7 @@ class _ChatScreenState extends State<ChatScreen> {
       'uid': user.uid,
       'senderName': user.displayName,
       'senderPhotoUrl': user.photoURL,
+      'time': Timestamp.now(),
     };
 
     if (pickedFile != null) {
@@ -75,7 +80,15 @@ class _ChatScreenState extends State<ChatScreen> {
               UniqueKey().toString() + DateTime.now().millisecondsSinceEpoch.toString())
           .putFile(File(pickedFile.path));
 
-      TaskSnapshot taskSnapshot = await task.whenComplete(() => null);
+      setState(() {
+        _isLoading = true;
+      });
+
+      TaskSnapshot taskSnapshot = await task.whenComplete(() {
+        setState(() {
+          _isLoading = false;
+        });
+      });
       String url = await taskSnapshot.ref.getDownloadURL();
       data['imgUrl'] = url;
     }
@@ -86,19 +99,47 @@ class _ChatScreenState extends State<ChatScreen> {
     return true;
   }
 
+  Widget _getWidgetTitle() {
+    final titleText =
+        _currentUser != null ? 'Olá ${_currentUser.displayName}' : 'Chat App';
+    return Text(
+      titleText,
+    );
+  }
+
+  void _exitToApp() {
+    FirebaseAuth.instance.signOut();
+    googleSignIn.signOut();
+    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(SnackBar(
+      content: Text('Você saiu com sucesso!'),
+    ));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         key: _scaffoldKey,
         appBar: AppBar(
-          title: Text('Olá'),
+          title: _getWidgetTitle(),
+          centerTitle: true,
           elevation: 0,
+          actions: [
+            _currentUser != null
+                ? IconButton(
+                    icon: const Icon(Icons.exit_to_app),
+                    onPressed: _exitToApp,
+                  )
+                : Container(),
+          ],
         ),
         body: Column(
           children: [
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance.collection('messages').snapshots(),
+                stream: FirebaseFirestore.instance
+                    .collection('messages')
+                    .orderBy('time')
+                    .snapshots(),
                 builder: (context, snapshot) {
                   switch (snapshot.connectionState) {
                     case ConnectionState.none:
@@ -113,13 +154,15 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemCount: documents.length,
                         reverse: true,
                         itemBuilder: (context, index) {
-                          return ChatMessage(documents[index].data(), true);
+                          return ChatMessage(documents[index].data(),
+                              documents[index].data()['uid'] == _currentUser?.uid);
                         },
                       );
                   }
                 },
               ),
             ),
+            _isLoading ? LinearProgressIndicator() : Container(),
             TextComposer(_sendMessage),
           ],
         ));

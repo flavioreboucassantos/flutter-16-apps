@@ -17,7 +17,7 @@ class ChatMessage extends StatelessWidget {
       widgetMessage = Text(
         data['text'],
         textAlign: mine ? TextAlign.end : TextAlign.start,
-        style: TextStyle(fontSize: 17.0),
+        style: TextStyle(fontSize: 16.0),
       );
     }
     return widgetMessage;
@@ -48,7 +48,7 @@ class ChatMessage extends StatelessWidget {
                 Text(
                   data['senderName'],
                   style: TextStyle(
-                    fontSize: 12.0,
+                    fontSize: 13.0,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
