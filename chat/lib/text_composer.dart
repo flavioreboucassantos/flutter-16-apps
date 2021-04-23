@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class TextComposer extends StatefulWidget {
-  final Future<bool> Function({String text, PickedFile pickedFile}) sendMessage;
+  final Future<void> Function({String text, PickedFile pickedFile}) sendMessage;
 
   TextComposer(this.sendMessage);
 
@@ -15,14 +15,11 @@ class _TextComposerState extends State<TextComposer> {
 
   bool _isComposing = false;
 
-  void _reset(Future<bool> sent) {
-    sent.then((value) {
-      if (value) {
-        _controller.clear();
-        setState(() {
-          _isComposing = false;
-        });
-      }
+  void _reset() {
+    _controller.clear();
+    FocusScope.of(context).requestFocus(FocusNode());
+    setState(() {
+      _isComposing = false;
     });
   }
 
@@ -50,16 +47,20 @@ class _TextComposerState extends State<TextComposer> {
                   _isComposing = text.isNotEmpty;
                 });
               },
-              onSubmitted: (text) {
-                if (text != '') _reset(widget.sendMessage(text: text));
-              },
+              onSubmitted: _isComposing
+                  ? (text) {
+                      widget.sendMessage(text: text);
+                      _reset();
+                    }
+                  : null,
             ),
           ),
           IconButton(
             icon: Icon(Icons.send),
             onPressed: _isComposing
                 ? () {
-                    _reset(widget.sendMessage(text: _controller.text));
+                    widget.sendMessage(text: _controller.text);
+                    _reset();
                   }
                 : null,
           )

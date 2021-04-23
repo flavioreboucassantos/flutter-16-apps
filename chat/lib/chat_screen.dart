@@ -19,6 +19,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final GoogleSignIn googleSignIn = GoogleSignIn();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  bool _isSending = false;
   User _currentUser;
   bool _isLoading = false;
 
@@ -54,7 +55,10 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  Future<bool> _sendMessage({String text, PickedFile pickedFile}) async {
+  Future<void> _sendMessage({String text, PickedFile pickedFile}) async {
+    if (_isSending) return;
+    _isSending = true;
+
     final User user = await _getUser();
 
     if (user == null) {
@@ -62,7 +66,7 @@ class _ChatScreenState extends State<ChatScreen> {
         content: Text('Não foi possível fazer o login. Tente novamente!'),
         backgroundColor: Colors.red,
       ));
-      return false;
+      return;
     }
 
     Map<String, dynamic> data = {
@@ -75,9 +79,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (pickedFile != null) {
       UploadTask task = FirebaseStorage.instance
           .ref()
-          .child(
-              UniqueKey().toString() + DateTime.now().millisecondsSinceEpoch.toString())
-          .putFile(File(pickedFile.path));
+          .child(user.uid + DateTime.now().millisecondsSinceEpoch.toString())
+          .putFile(
+              File(pickedFile.path), SettableMetadata(customMetadata: {'uid': user.uid}));
 
       setState(() {
         _isLoading = true;
@@ -95,7 +99,9 @@ class _ChatScreenState extends State<ChatScreen> {
     if (text != null) data['text'] = text;
 
     FirebaseFirestore.instance.collection('messages').add(data);
-    return true;
+
+    _isSending = false;
+    return;
   }
 
   Widget _getWidgetTitle() {
