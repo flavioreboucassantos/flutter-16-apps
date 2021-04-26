@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "62575733058",
+    "project_id": "lojaflutter-65ef2",
+    "storage_bucket": "lojaflutter-65ef2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:62575733058:android:dc0a9f878741ec3fbd00db",
+        "android_client_info": {
+          "package_name": "flavioreboucassantos.com.loja_virtual"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "62575733058-7mqd0gd0itcm5ctgj621prlen9svd3se.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTTMuJApI5H-iRf2Uk6fox8PsEN7hRQ8I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "62575733058-7mqd0gd0itcm5ctgj621prlen9svd3se.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
