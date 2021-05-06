@@ -6,8 +6,8 @@ class ProductData {
   String title;
   String description;
   double price;
-  List<String> images;
-  List<String> sizes;
+  List images;
+  List sizes;
 
   ProductData.fromDocument(DocumentSnapshot snapshot) {
     id = snapshot.id;
