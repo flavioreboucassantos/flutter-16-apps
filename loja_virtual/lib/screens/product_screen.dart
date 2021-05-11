@@ -1,20 +1,16 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/datas/product_data.dart';
+import 'package:loja_virtual/datas/select_size.dart';
+import 'package:loja_virtual/widgets/addcart_button.dart';
+import 'package:loja_virtual/widgets/clothes_sizes.dart';
 
-class ProductScreen extends StatefulWidget {
+class ProductScreen extends StatelessWidget {
   final ProductData productData;
+
+  final SelectSize selectSize = SelectSize();
 
   ProductScreen(this.productData);
-
-  @override
-  _ProductScreenState createState() => _ProductScreenState(productData);
-}
-
-class _ProductScreenState extends State<ProductScreen> {
-  final ProductData productData;
-
-  _ProductScreenState(this.productData);
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +55,40 @@ class _ProductScreenState extends State<ProductScreen> {
                     color: primaryColor,
                   ),
                 ),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Text(
+                  'Tamanho',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                ClothesSizes(productData.sizes, selectSize),
+                SizedBox(
+                  height: 16.0,
+                ),
+                AddCartButton(selectSize),
+                SizedBox(
+                  height: 16.0,
+                ),
+                Text(
+                  'Descrição',
+                  style: TextStyle(
+                    fontSize: 16.0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                Text(
+                  productData.description,
+                  style: TextStyle(
+                    fontSize: 16.0,
+                  ),
+                ),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
