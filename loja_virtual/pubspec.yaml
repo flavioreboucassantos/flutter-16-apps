@@ -41,6 +41,7 @@ dev_dependencies:
   firebase_auth: ^1.1.2
   firebase_core: ^1.1.0
   cloud_firestore: ^1.0.7
+  email_validator: ^2.0.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

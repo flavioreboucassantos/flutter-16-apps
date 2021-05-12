@@ -9,13 +9,13 @@ class ClothesSizes extends StatefulWidget {
   ClothesSizes(this.sizes, this.triggerForm);
 
   @override
-  _SizesState createState() => _SizesState(sizes);
+  _ClothesSizesState createState() => _ClothesSizesState(sizes);
 }
 
-class _SizesState extends State<ClothesSizes> {
+class _ClothesSizesState extends State<ClothesSizes> {
   final List<dynamic> sizes;
 
-  _SizesState(this.sizes);
+  _ClothesSizesState(this.sizes);
 
   @override
   Widget build(BuildContext context) {
