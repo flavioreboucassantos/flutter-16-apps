@@ -1,14 +1,14 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/datas/product_data.dart';
-import 'package:loja_virtual/datas/select_size.dart';
+import 'package:loja_virtual/datas/trigger_form.dart';
 import 'package:loja_virtual/widgets/addcart_button.dart';
 import 'package:loja_virtual/widgets/clothes_sizes.dart';
 
 class ProductScreen extends StatelessWidget {
   final ProductData productData;
 
-  final SelectSize selectSize = SelectSize();
+  final TriggerForm triggerForm = TriggerForm();
 
   ProductScreen(this.productData);
 
@@ -65,11 +65,11 @@ class ProductScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                ClothesSizes(productData.sizes, selectSize),
+                ClothesSizes(productData.sizes, triggerForm),
                 SizedBox(
                   height: 16.0,
                 ),
-                AddCartButton(selectSize),
+                AddCartButton(triggerForm),
                 SizedBox(
                   height: 16.0,
                 ),

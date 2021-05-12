@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/datas/select_size.dart';
+import 'package:loja_virtual/datas/trigger_form.dart';
 
 class AddCartButton extends StatefulWidget {
-  final SelectSize selectSize;
+  final TriggerForm triggerForm;
 
-  AddCartButton(this.selectSize);
+  AddCartButton(this.triggerForm);
 
   @override
   _AddCartButtonState createState() => _AddCartButtonState();
@@ -14,9 +14,8 @@ class _AddCartButtonState extends State<AddCartButton> {
   @override
   void initState() {
     super.initState();
-    widget.selectSize.addListener(() {
-      setState(() {});
-    });
+    widget.triggerForm
+        .addListener(['size'], (Map<String, dynamic> data) => setState(() {}));
   }
 
   Color _getBackgroundColor(Set<MaterialState> states) {
@@ -31,7 +30,7 @@ class _AddCartButtonState extends State<AddCartButton> {
     return SizedBox(
       height: 44.0,
       child: ElevatedButton(
-        onPressed: widget.selectSize.size != null ? () {} : null,
+        onPressed: widget.triggerForm.getKey('size') != null ? () {} : null,
         child: Text(
           'Adicionar ao Carrinho',
           style: TextStyle(
