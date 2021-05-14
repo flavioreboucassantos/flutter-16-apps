@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:loja_virtual/models/user_model.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:loja_virtual/screens/signup_screen.dart';
 
@@ -29,70 +31,79 @@ class LoginScreen extends StatelessWidget {
               )),
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(16.0),
-          children: [
-            TextFormField(
-              decoration: InputDecoration(hintText: 'E-mail'),
-              keyboardType: TextInputType.emailAddress,
-              validator: (text) {
-                print('validator email');
-                if (!EmailValidator.validate(text)) return 'E-mail inválido';
-                return null;
-              },
-            ),
-            SizedBox(height: 16.0),
-            TextFormField(
-              decoration: InputDecoration(hintText: 'Senha'),
-              obscureText: true,
-              validator: (text) {
-                if (text.isEmpty || text.length < 6) return 'Senha inválida';
-                return null;
-              },
-            ),
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all(EdgeInsets.zero),
-                ),
-                onPressed: () {},
-                child: Text(
-                  'Esqueci minha senha',
-                  textAlign: TextAlign.right,
-                  style: TextStyle(
-                    color: Colors.black,
+      body: ScopedModelDescendant<UserModel>(
+        builder: (context, child, model) {
+          if (model.isLoading)
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          else
+            return Form(
+              key: _formKey,
+              child: ListView(
+                padding: EdgeInsets.all(16.0),
+                children: [
+                  TextFormField(
+                    decoration: InputDecoration(hintText: 'E-mail'),
+                    keyboardType: TextInputType.emailAddress,
+                    validator: (text) {
+                      if (!EmailValidator.validate(text)) return 'E-mail inválido';
+                      return null;
+                    },
                   ),
-                ),
+                  SizedBox(height: 16.0),
+                  TextFormField(
+                    decoration: InputDecoration(hintText: 'Senha'),
+                    obscureText: true,
+                    validator: (text) {
+                      if (text.isEmpty || text.length < 6) return 'Senha inválida';
+                      return null;
+                    },
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all(EdgeInsets.zero),
+                      ),
+                      onPressed: () {},
+                      child: Text(
+                        'Esqueci minha senha',
+                        textAlign: TextAlign.right,
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16.0,
+                  ),
+                  SizedBox(
+                    height: 44.0,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState.validate()) {}
+                        model.signIn();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      child: Text(
+                        'Entrar',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-            SizedBox(
-              height: 16.0,
-            ),
-            SizedBox(
-              height: 44.0,
-              child: ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState.validate()) {}
-                },
-                style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                    Theme.of(context).primaryColor,
-                  ),
-                ),
-                child: Text(
-                  'Entrar',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+            );
+        },
       ),
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/datas/trigger_form.dart';
+import 'package:loja_virtual/classes/trigger_form.dart';
 
 class ClothesSizes extends StatefulWidget {
   final List<dynamic> sizes;

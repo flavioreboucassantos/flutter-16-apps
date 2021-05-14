@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/datas/trigger_form.dart';
+import 'package:loja_virtual/classes/trigger_form.dart';
 
 class AddCartButton extends StatefulWidget {
   final TriggerForm triggerForm;
@@ -11,11 +11,15 @@ class AddCartButton extends StatefulWidget {
 }
 
 class _AddCartButtonState extends State<AddCartButton> {
+  bool _hasSize = false;
+
   @override
   void initState() {
     super.initState();
-    widget.triggerForm
-        .addListener(['size'], (Map<String, dynamic> data) => setState(() {}));
+    widget.triggerForm.addListener(['size'], (Map<String, dynamic> data) {
+      if (!_hasSize) setState(() {});
+      _hasSize = true;
+    });
   }
 
   Color _getBackgroundColor(Set<MaterialState> states) {

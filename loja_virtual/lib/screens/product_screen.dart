@@ -1,7 +1,7 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/datas/product_data.dart';
-import 'package:loja_virtual/datas/trigger_form.dart';
+import 'package:loja_virtual/classes/trigger_form.dart';
 import 'package:loja_virtual/widgets/addcart_button.dart';
 import 'package:loja_virtual/widgets/clothes_sizes.dart';
 
