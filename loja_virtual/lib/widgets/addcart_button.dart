@@ -11,14 +11,12 @@ class AddCartButton extends StatefulWidget {
 }
 
 class _AddCartButtonState extends State<AddCartButton> {
-  bool _hasSize = false;
-
   @override
   void initState() {
     super.initState();
-    widget.triggerForm.addListener(['size'], (Map<String, dynamic> data) {
-      if (!_hasSize) setState(() {});
-      _hasSize = true;
+    widget.triggerForm.addListener(['size'],
+        (Map<String, dynamic> previousForm, Map<String, dynamic> updatedForm) {
+      if (previousForm['size'] == null) setState(() {});
     });
   }
 
