@@ -11,12 +11,16 @@ class AddCartButton extends StatefulWidget {
 }
 
 class _AddCartButtonState extends State<AddCartButton> {
+  Map<String, dynamic> cartForm;
+
   @override
   void initState() {
     super.initState();
-    widget.triggerForm.addListener(['size'],
-        (Map<String, dynamic> previousForm, Map<String, dynamic> updatedForm) {
-      if (previousForm['size'] == null) setState(() {});
+    widget.triggerForm.addListener(['size'], () {
+      if (cartForm == null) {
+        cartForm = widget.triggerForm.form;
+        setState(() {});
+      }
     });
   }
 
@@ -32,7 +36,7 @@ class _AddCartButtonState extends State<AddCartButton> {
     return SizedBox(
       height: 44.0,
       child: ElevatedButton(
-        onPressed: widget.triggerForm.getKey('size') != null ? () {} : null,
+        onPressed: cartForm != null ? () {} : null,
         child: Text(
           'Adicionar ao Carrinho',
           style: TextStyle(

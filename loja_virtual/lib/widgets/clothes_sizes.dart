@@ -49,7 +49,7 @@ class _ClothesSizesState extends State<ClothesSizes> {
                       ),
                     ),
                     border: Border.all(
-                      color: widget.triggerForm.getKey('size') == size
+                      color: widget.triggerForm.form['size'] == size
                           ? primaryColor
                           : Colors.grey[500],
                       width: 3.0,
