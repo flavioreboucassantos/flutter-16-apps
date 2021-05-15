@@ -8,8 +8,6 @@ import 'package:loja_virtual/widgets/clothes_sizes.dart';
 class ProductScreen extends StatelessWidget {
   final ProductData productData;
 
-  final TriggerMap triggerMap = TriggerMap();
-
   ProductScreen(this.productData);
 
   @override
@@ -65,11 +63,11 @@ class ProductScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                ClothesSizes(productData.sizes, triggerMap),
+                ClothesSizes(productData.sizes),
                 SizedBox(
                   height: 16.0,
                 ),
-                AddCartButton(triggerMap),
+                AddCartButton(),
                 SizedBox(
                   height: 16.0,
                 ),

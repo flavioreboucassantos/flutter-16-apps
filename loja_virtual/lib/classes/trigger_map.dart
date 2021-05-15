@@ -3,9 +3,20 @@
 /// Author: FlavioReboucasSantos@gmail.com
 
 class TriggerMap {
-  Map<String, dynamic> map = {};
+  static Map<String, TriggerMap> _instances = Map();
+  Map<String, dynamic> map = Map();
   List<List<String>> _listCombinedKeys = [];
   List<void Function(Map<String, dynamic>)> _listListeners = [];
+
+  /// Initializes or retrieves a TriggerMap instance by [id] parameter.
+  static TriggerMap instance(String id) {
+    if (_instances[id] == null) {
+      final newInstance = TriggerMap();
+      _instances[id] = newInstance;
+      return newInstance;
+    }
+    return _instances[id];
+  }
 
   /// Adds a function to be triggered if one of the keys in the list is updated.
   ///

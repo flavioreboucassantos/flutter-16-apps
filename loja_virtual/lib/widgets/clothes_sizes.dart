@@ -4,15 +4,14 @@ import 'package:loja_virtual/classes/trigger_map.dart';
 class ClothesSizes extends StatefulWidget {
   final List<dynamic> sizes;
 
-  final TriggerMap triggerMap;
-
-  ClothesSizes(this.sizes, this.triggerMap);
+  ClothesSizes(this.sizes);
 
   @override
   _ClothesSizesState createState() => _ClothesSizesState(sizes);
 }
 
 class _ClothesSizesState extends State<ClothesSizes> {
+  TriggerMap _cartTriggerMap = TriggerMap.instance('cart');
   final List<dynamic> sizes;
 
   _ClothesSizesState(this.sizes);
@@ -38,7 +37,7 @@ class _ClothesSizesState extends State<ClothesSizes> {
               (size) => GestureDetector(
                 onTap: () {
                   setState(() {
-                    widget.triggerMap.setKey('size', size);
+                    _cartTriggerMap.setKey('size', size);
                   });
                 },
                 child: Container(
@@ -49,7 +48,7 @@ class _ClothesSizesState extends State<ClothesSizes> {
                       ),
                     ),
                     border: Border.all(
-                      color: widget.triggerMap.map['size'] == size
+                      color: _cartTriggerMap.map['size'] == size
                           ? primaryColor
                           : Colors.grey[500],
                       width: 3.0,
