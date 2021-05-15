@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/classes/trigger_form.dart';
+import 'package:loja_virtual/classes/trigger_map.dart';
 
 class ClothesSizes extends StatefulWidget {
   final List<dynamic> sizes;
 
-  final TriggerForm triggerForm;
+  final TriggerMap triggerMap;
 
-  ClothesSizes(this.sizes, this.triggerForm);
+  ClothesSizes(this.sizes, this.triggerMap);
 
   @override
   _ClothesSizesState createState() => _ClothesSizesState(sizes);
@@ -38,7 +38,7 @@ class _ClothesSizesState extends State<ClothesSizes> {
               (size) => GestureDetector(
                 onTap: () {
                   setState(() {
-                    widget.triggerForm.setKey('size', size);
+                    widget.triggerMap.setKey('size', size);
                   });
                 },
                 child: Container(
@@ -49,7 +49,7 @@ class _ClothesSizesState extends State<ClothesSizes> {
                       ),
                     ),
                     border: Border.all(
-                      color: widget.triggerForm.form['size'] == size
+                      color: widget.triggerMap.map['size'] == size
                           ? primaryColor
                           : Colors.grey[500],
                       width: 3.0,

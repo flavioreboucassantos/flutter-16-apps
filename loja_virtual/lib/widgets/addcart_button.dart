@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/classes/trigger_form.dart';
+import 'package:loja_virtual/classes/trigger_map.dart';
 
 class AddCartButton extends StatefulWidget {
-  final TriggerForm triggerForm;
+  final TriggerMap triggerMap;
 
-  AddCartButton(this.triggerForm);
+  AddCartButton(this.triggerMap);
 
   @override
   _AddCartButtonState createState() => _AddCartButtonState();
 }
 
 class _AddCartButtonState extends State<AddCartButton> {
-  Map<String, dynamic> cartForm;
+  Map<String, dynamic> cartMap;
 
   @override
   void initState() {
     super.initState();
-    widget.triggerForm.addListener(['size'], () {
-      if (cartForm == null) {
-        cartForm = widget.triggerForm.form;
+    widget.triggerMap.addListener(['size'], (Map<String, dynamic> data) {
+      if (cartMap == null) {
+        cartMap = widget.triggerMap.map;
         setState(() {});
       }
     });
@@ -36,7 +36,7 @@ class _AddCartButtonState extends State<AddCartButton> {
     return SizedBox(
       height: 44.0,
       child: ElevatedButton(
-        onPressed: cartForm != null ? () {} : null,
+        onPressed: cartMap != null ? () {} : null,
         child: Text(
           'Adicionar ao Carrinho',
           style: TextStyle(
