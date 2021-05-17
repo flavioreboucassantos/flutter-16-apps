@@ -10,14 +10,47 @@ class SignUpScreen extends StatelessWidget {
   final _addressController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  void _onSuccess() {}
+  void _onSuccess() {
+    final context = _scaffoldKey.currentContext;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Usuário criado com sucesso!',
+        ),
+        backgroundColor: Theme.of(context).primaryColor,
+        duration: Duration(
+          seconds: 2,
+        ),
+      ),
+    );
+    Future.delayed(
+      Duration(
+        seconds: 2,
+      ),
+    ).then((value) => Navigator.of(context).pop());
+  }
 
-  void _onFail() {}
+  void _onFail() {
+    final context = _scaffoldKey.currentContext;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Falha ao criar usuário!',
+        ),
+        backgroundColor: Colors.redAccent,
+        duration: Duration(
+          seconds: 2,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Criar Conta'),
         centerTitle: true,
@@ -48,7 +81,8 @@ class SignUpScreen extends StatelessWidget {
                   decoration: InputDecoration(hintText: 'E-mail'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (text) {
-                    if (!EmailValidator.validate(text)) return 'E-mail inválido';
+                    if (!EmailValidator.validate(text))
+                      return 'E-mail inválido';
                     return null;
                   },
                 ),
@@ -59,7 +93,8 @@ class SignUpScreen extends StatelessWidget {
                   obscureText: true,
                   validator: (text) {
                     text = text.trim();
-                    if (text.isEmpty || text.length < 6) return 'Senha inválida';
+                    if (text.isEmpty || text.length < 6)
+                      return 'Senha inválida';
                     return null;
                   },
                 ),
