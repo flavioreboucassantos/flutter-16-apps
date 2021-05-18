@@ -11,10 +11,7 @@ class UserModel extends Model {
 
   bool isLoading = false;
 
-  @override
-  void addListener(VoidCallback listener) {
-    super.addListener(listener);
-
+  UserModel() {
     _loadCurrentUser();
   }
 
