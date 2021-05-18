@@ -9,8 +9,8 @@ class SignUpScreen extends StatelessWidget {
   final _passController = TextEditingController();
   final _addressController = TextEditingController();
 
-  final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  final _formKey = GlobalKey<FormState>();
 
   void _onSuccess() {
     final context = _scaffoldKey.currentContext;

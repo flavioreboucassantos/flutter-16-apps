@@ -5,11 +5,34 @@ import 'package:email_validator/email_validator.dart';
 import 'package:loja_virtual/screens/signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
+  final _emailController = TextEditingController();
+  final _passController = TextEditingController();
+
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
   final _formKey = GlobalKey<FormState>();
+
+  void _onSuccess() {
+    Navigator.of(_scaffoldKey.currentContext).pop();
+  }
+
+  void _onFail() {
+    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Falha ao entrar!',
+        ),
+        backgroundColor: Colors.redAccent,
+        duration: Duration(
+          seconds: 2,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Entrar'),
         centerTitle: true,
@@ -43,19 +66,23 @@ class LoginScreen extends StatelessWidget {
               padding: EdgeInsets.all(16.0),
               children: [
                 TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(hintText: 'E-mail'),
                   keyboardType: TextInputType.emailAddress,
                   validator: (text) {
-                    if (!EmailValidator.validate(text)) return 'E-mail inválido';
+                    if (!EmailValidator.validate(text))
+                      return 'E-mail inválido';
                     return null;
                   },
                 ),
                 SizedBox(height: 16.0),
                 TextFormField(
+                  controller: _passController,
                   decoration: InputDecoration(hintText: 'Senha'),
                   obscureText: true,
                   validator: (text) {
-                    if (text.isEmpty || text.length < 6) return 'Senha inválida';
+                    if (text.isEmpty || text.length < 6)
+                      return 'Senha inválida';
                     return null;
                   },
                 ),
@@ -82,8 +109,14 @@ class LoginScreen extends StatelessWidget {
                   height: 44.0,
                   child: ElevatedButton(
                     onPressed: () {
-                      if (_formKey.currentState.validate()) {}
-                      model.signIn();
+                      if (_formKey.currentState.validate()) {
+                        model.signIn(
+                          email: _emailController.text.trim(),
+                          pass: _passController.text.trim(),
+                          onSuccess: _onSuccess,
+                          onFail: _onFail,
+                        );
+                      }
                     },
                     style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
