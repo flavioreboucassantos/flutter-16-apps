@@ -28,11 +28,6 @@ class _AddCartButtonState extends State<AddCartButton> {
     return Theme.of(context).primaryColor;
   }
 
-  Future<String> teste() async {
-    await Future.delayed(Duration(seconds: 2));
-    return 'Return of teste()';
-  }
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -46,7 +41,8 @@ class _AddCartButtonState extends State<AddCartButton> {
           ),
         ),
         style: ButtonStyle(
-          backgroundColor: MaterialStateProperty.resolveWith(_getBackgroundColor),
+          backgroundColor:
+              MaterialStateProperty.resolveWith(_getBackgroundColor),
         ),
       ),
     );

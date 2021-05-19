@@ -92,7 +92,47 @@ class LoginScreen extends StatelessWidget {
                     style: ButtonStyle(
                       padding: MaterialStateProperty.all(EdgeInsets.zero),
                     ),
-                    onPressed: () {},
+                    onPressed: () {
+                      if (_emailController.text.trim().isEmpty)
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Insira seu e-mail para recuperação!',
+                            ),
+                            backgroundColor: Colors.redAccent,
+                            duration: Duration(
+                              seconds: 2,
+                            ),
+                          ),
+                        );
+                      else if (!EmailValidator.validate(
+                          _emailController.text)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'E-mail inválido para recuperação!',
+                            ),
+                            backgroundColor: Colors.redAccent,
+                            duration: Duration(
+                              seconds: 2,
+                            ),
+                          ),
+                        );
+                      } else {
+                        model.recoverPass(_emailController.text.trim());
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Confira seu e-mail!',
+                            ),
+                            backgroundColor: Theme.of(context).primaryColor,
+                            duration: Duration(
+                              seconds: 2,
+                            ),
+                          ),
+                        );
+                      }
+                    },
                     child: Text(
                       'Esqueci minha senha',
                       textAlign: TextAlign.right,
