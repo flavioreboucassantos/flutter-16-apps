@@ -11,6 +11,9 @@ class UserModel extends Model {
 
   bool isLoading = false;
 
+  static UserModel of(BuildContext context) =>
+      ScopedModel.of<UserModel>(context);
+
   UserModel() {
     _loadCurrentUser();
   }

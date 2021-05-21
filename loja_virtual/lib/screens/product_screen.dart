@@ -1,7 +1,6 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/datas/product_data.dart';
-import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:loja_virtual/widgets/addcart_button.dart';
 import 'package:loja_virtual/widgets/clothes_sizes.dart';
 
@@ -67,7 +66,7 @@ class ProductScreen extends StatelessWidget {
                 SizedBox(
                   height: 16.0,
                 ),
-                AddCartButton(),
+                AddCartButton(productData),
                 SizedBox(
                   height: 16.0,
                 ),

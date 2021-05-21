@@ -9,17 +9,16 @@ class SignUpScreen extends StatelessWidget {
   final _passController = TextEditingController();
   final _addressController = TextEditingController();
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  BuildContext _context;
   final _formKey = GlobalKey<FormState>();
 
   void _onSuccess() {
-    final context = _scaffoldKey.currentContext;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(_context).showSnackBar(
       SnackBar(
         content: Text(
           'Usuário criado com sucesso!',
         ),
-        backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Theme.of(_context).primaryColor,
         duration: Duration(
           seconds: 2,
         ),
@@ -29,12 +28,11 @@ class SignUpScreen extends StatelessWidget {
       Duration(
         seconds: 2,
       ),
-    ).then((value) => Navigator.of(context).pop());
+    ).then((value) => Navigator.of(_context).pop());
   }
 
   void _onFail() {
-    final context = _scaffoldKey.currentContext;
-    ScaffoldMessenger.of(context).showSnackBar(
+    ScaffoldMessenger.of(_context).showSnackBar(
       SnackBar(
         content: Text(
           'Falha ao criar usuário!',
@@ -49,8 +47,8 @@ class SignUpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Criar Conta'),
         centerTitle: true,

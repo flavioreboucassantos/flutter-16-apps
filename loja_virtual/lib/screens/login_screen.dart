@@ -8,15 +8,15 @@ class LoginScreen extends StatelessWidget {
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
 
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  BuildContext _context;
   final _formKey = GlobalKey<FormState>();
 
   void _onSuccess() {
-    Navigator.of(_scaffoldKey.currentContext).pop();
+    Navigator.of(_context).pop();
   }
 
   void _onFail() {
-    ScaffoldMessenger.of(_scaffoldKey.currentContext).showSnackBar(
+    ScaffoldMessenger.of(_context).showSnackBar(
       SnackBar(
         content: Text(
           'Falha ao entrar!',
@@ -31,8 +31,8 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _context = context;
     return Scaffold(
-      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Entrar'),
         centerTitle: true,
