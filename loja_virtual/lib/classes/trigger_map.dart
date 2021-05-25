@@ -18,15 +18,25 @@ class TriggerMap {
     return _instances[id];
   }
 
+  /// Deletes a TriggerMap instance by [id] parameter.
+  static void delete(String id) {
+    _instances.remove(id);
+  }
+
   /// Adds a function to be triggered if one of the keys in the list is updated.
   ///
   /// The [first parameter] of the function contains a map of what was updated.
-  void addListener(List<String> combinedKeys, void Function(Map<String, dynamic>) f) {
+  void addListener(
+    List<String> combinedKeys,
+    void Function(Map<String, dynamic>) f,
+  ) {
     _listCombinedKeys.add(combinedKeys);
     _listListeners.add(f);
   }
 
   /// Merges an entire map with the current.
+  ///
+  /// If a key of [data] is already in the current map, its value is overwritten.
   void mergeMap(Map<String, dynamic> data) {
     map.addAll(data);
     for (var i = 0; i < _listCombinedKeys.length; i++)
