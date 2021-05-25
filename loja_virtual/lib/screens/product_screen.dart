@@ -1,5 +1,6 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
+import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:loja_virtual/datas/product_data.dart';
 import 'package:loja_virtual/widgets/addcart_button.dart';
 import 'package:loja_virtual/widgets/clothes_sizes.dart';
@@ -13,6 +14,8 @@ class ProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color primaryColor = Theme.of(context).primaryColor;
 
+    TriggerMap.delete('addCart');
+
     return Scaffold(
       appBar: AppBar(
         title: Text(productData.title),
@@ -23,7 +26,8 @@ class ProductScreen extends StatelessWidget {
           AspectRatio(
             aspectRatio: 0.9,
             child: Carousel(
-              images: productData.images.map((url) => NetworkImage(url)).toList(),
+              images:
+                  productData.images.map((url) => NetworkImage(url)).toList(),
               dotSize: 4.0,
               dotSpacing: 15.0,
               dotBgColor: Colors.transparent,

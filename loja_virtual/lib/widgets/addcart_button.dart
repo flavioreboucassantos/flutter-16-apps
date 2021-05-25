@@ -17,13 +17,13 @@ class AddCartButton extends StatefulWidget {
 }
 
 class _AddCartButtonState extends State<AddCartButton> {
-  TriggerMap _cartTriggerMap = TriggerMap.instance('cart');
+  TriggerMap _addCartTriggerMap = TriggerMap.instance('addCart');
   bool _loaded = false;
 
   @override
   void initState() {
     super.initState();
-    _cartTriggerMap.addListener(['size'], (Map<String, dynamic> data) {
+    _addCartTriggerMap.addListener(['size'], (Map<String, dynamic> data) {
       if (!_loaded) {
         _loaded = true;
         setState(() {});
@@ -47,7 +47,7 @@ class _AddCartButtonState extends State<AddCartButton> {
             ? () {
                 if (UserModel.of(context).isLoggedIn()) {
                   CartProduct cartProduct = CartProduct();
-                  cartProduct.size = _cartTriggerMap.map['size'];
+                  cartProduct.size = _addCartTriggerMap.map['size'];
                   cartProduct.quantity = 1;
                   cartProduct.pid = widget.productData.id;
                   cartProduct.category = widget.productData.category;

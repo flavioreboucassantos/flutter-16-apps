@@ -11,7 +11,7 @@ class ClothesSizes extends StatefulWidget {
 }
 
 class _ClothesSizesState extends State<ClothesSizes> {
-  TriggerMap _cartTriggerMap = TriggerMap.instance('cart');
+  TriggerMap _addCartTriggerMap = TriggerMap.instance('addCart');
   final List<dynamic> sizes;
 
   _ClothesSizesState(this.sizes);
@@ -37,7 +37,7 @@ class _ClothesSizesState extends State<ClothesSizes> {
               (size) => GestureDetector(
                 onTap: () {
                   setState(() {
-                    _cartTriggerMap.setKey('size', size);
+                    _addCartTriggerMap.setKey('size', size);
                   });
                 },
                 child: Container(
@@ -48,7 +48,7 @@ class _ClothesSizesState extends State<ClothesSizes> {
                       ),
                     ),
                     border: Border.all(
-                      color: _cartTriggerMap.map['size'] == size
+                      color: _addCartTriggerMap.map['size'] == size
                           ? primaryColor
                           : Colors.grey[500],
                       width: 3.0,
