@@ -36,8 +36,8 @@ class _ClothesSizesState extends State<ClothesSizes> {
             .map(
               (size) => GestureDetector(
                 onTap: () {
+                  _addCartTriggerMap.setKey('size', size);
                   setState(() {
-                    _addCartTriggerMap.setKey('size', size);
                   });
                 },
                 child: Container(

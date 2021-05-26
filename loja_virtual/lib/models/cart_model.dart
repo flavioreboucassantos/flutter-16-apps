@@ -9,6 +9,9 @@ class CartModel extends Model {
 
   List<CartProduct> products = [];
 
+  String couponCode;
+  int discountPercentage = 0;
+
   bool isLoading = false;
 
   static CartModel of(BuildContext context) =>
@@ -82,5 +85,10 @@ class CartModel extends Model {
         .update({'quantity': cartProduct.quantity});
 
     notifyListeners();
+  }
+
+  void setCoupon(String couponCode, int discountPercentage) {
+    this.couponCode = couponCode;
+    this.discountPercentage = discountPercentage;
   }
 }

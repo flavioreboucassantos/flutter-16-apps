@@ -14,7 +14,7 @@ class ProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color primaryColor = Theme.of(context).primaryColor;
 
-    TriggerMap.delete('addCart');
+    TriggerMap.clear('addCart');
 
     return Scaffold(
       appBar: AppBar(

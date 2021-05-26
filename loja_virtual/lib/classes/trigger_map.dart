@@ -18,8 +18,8 @@ class TriggerMap {
     return _instances[id];
   }
 
-  /// Deletes a TriggerMap instance by [id] parameter.
-  static void delete(String id) {
+  /// Removes a TriggerMap instance by [id] parameter.
+  static void clear(String id) {
     _instances.remove(id);
   }
 
