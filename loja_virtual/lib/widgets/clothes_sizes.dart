@@ -7,14 +7,11 @@ class ClothesSizes extends StatefulWidget {
   ClothesSizes(this.sizes);
 
   @override
-  _ClothesSizesState createState() => _ClothesSizesState(sizes);
+  _ClothesSizesState createState() => _ClothesSizesState();
 }
 
 class _ClothesSizesState extends State<ClothesSizes> {
   TriggerMap _addCartTriggerMap = TriggerMap.instance('addCart');
-  final List<dynamic> sizes;
-
-  _ClothesSizesState(this.sizes);
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +29,12 @@ class _ClothesSizesState extends State<ClothesSizes> {
           mainAxisSpacing: 8.0,
           childAspectRatio: 0.5,
         ),
-        children: sizes
+        children: widget.sizes
             .map(
               (size) => GestureDetector(
                 onTap: () {
                   _addCartTriggerMap.setKey('size', size);
-                  setState(() {
-                  });
+                  setState(() {});
                 },
                 child: Container(
                   decoration: BoxDecoration(

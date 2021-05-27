@@ -4,12 +4,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loja_virtual/datas/product_data.dart';
 import 'package:loja_virtual/models/cart_model.dart';
 
-class CartTile extends StatelessWidget {
+class CartProductTile extends StatelessWidget {
   final CartProduct cartProduct;
 
   BuildContext _context;
 
-  CartTile(this.cartProduct);
+  CartProductTile(this.cartProduct);
 
   Widget _buildContent() {
     Color primaryColor = Theme.of(_context).primaryColor;
@@ -96,6 +96,12 @@ class CartTile extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             cartProduct.productData = ProductData.fromDocument(snapshot.data);
+
+            CartModel model = CartModel.of(_context);
+            model.loadedProducts++;
+            if (model.loadedProducts == model.products.length)
+              model.updatePrices();
+
             return _buildContent();
           } else
             return Container(
