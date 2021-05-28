@@ -97,6 +97,7 @@ class CartScreen extends StatelessWidget {
               ),
             );
 
+          model.productsToLoad = 0;
           return ListView(
             children: [
               Column(
@@ -108,8 +109,7 @@ class CartScreen extends StatelessWidget {
               ),
               DiscountCard(),
               ShipCard(),
-              CartPrice(() {
-              }),
+              CartPrice(() {}),
             ],
           );
         },

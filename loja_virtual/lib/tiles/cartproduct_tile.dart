@@ -85,7 +85,9 @@ class CartProductTile extends StatelessWidget {
   }
 
   Widget _getChild() {
-    if (cartProduct.productData == null)
+    if (cartProduct.productData == null) {
+      CartModel model = CartModel.of(_context);
+      model.productsToLoad++;
       return FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
             .collection('products')
@@ -96,12 +98,8 @@ class CartProductTile extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             cartProduct.productData = ProductData.fromDocument(snapshot.data);
-
-            CartModel model = CartModel.of(_context);
-            model.loadedProducts++;
-            if (model.loadedProducts == model.products.length)
-              model.updatePrices();
-
+            model.productsToLoad--;
+            if (model.productsToLoad == 0) model.updatePrices();
             return _buildContent();
           } else
             return Container(
@@ -111,6 +109,7 @@ class CartProductTile extends StatelessWidget {
             );
         },
       );
+    }
     return _buildContent();
   }
 

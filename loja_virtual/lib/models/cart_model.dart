@@ -8,7 +8,7 @@ class CartModel extends Model {
   UserModel user;
 
   List<CartProduct> products = [];
-  int loadedProducts = 0;
+  int productsToLoad = 0;
 
   String couponCode;
   int discountPercentage = 0;
@@ -58,7 +58,6 @@ class CartModel extends Model {
         .delete();
 
     products.remove(cartProduct);
-    loadedProducts--;
 
     notifyListeners();
   }
