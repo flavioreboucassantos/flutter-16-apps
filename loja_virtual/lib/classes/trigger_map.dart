@@ -78,7 +78,7 @@ class TriggerMap {
     _triggerByPair(key, other);
   }
 
-  /// Defines a [key/value] pair in the internal map.
+  /// Defines a [key/value] pair to the internal map.
   void setKey(String key, dynamic value) {
     map[key] = value;
     _triggerByPair(key, value);
