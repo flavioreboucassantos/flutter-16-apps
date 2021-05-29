@@ -20,8 +20,15 @@ class _AddCartButtonState extends State<AddCartButton> {
   TriggerMap _addCartTriggerMap = TriggerMap.instance('addCart');
   bool _loaded = false;
 
+  void update(Map<String, dynamic> data) {
+    if (!_loaded) {
+      _loaded = true;
+      setState(() {});
+    }
+  }
+
   _AddCartButtonState() {
-    _addCartTriggerMap.addListener((Map<String, dynamic> data) {
+    _addCartTriggerMap.subscribe((data) {
       if (!_loaded) {
         _loaded = true;
         setState(() {});

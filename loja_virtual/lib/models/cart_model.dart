@@ -114,4 +114,53 @@ class CartModel extends Model {
   double getShipPrice() {
     return 9.99;
   }
+
+  Future<String> finishOrder() async {
+    if (products.length == 0) return null;
+
+    isLoading = true;
+    notifyListeners();
+
+    double productsPrice = getProductsPrice();
+    double shipPrice = getShipPrice();
+    double discount = getDiscount();
+
+    DocumentReference refOrder =
+        await FirebaseFirestore.instance.collection('orders').add({
+      'clientId': user.firebaseUser.uid,
+      'products': products.map((cartProduct) => cartProduct.toMap()).toList(),
+      'shipPrice': shipPrice,
+      'productsPrice': productsPrice,
+      'discount': discount,
+      'totalPrice': productsPrice - discount + shipPrice,
+      'status': 1
+    });
+
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.firebaseUser.uid)
+        .collection('orders')
+        .doc(refOrder.id)
+        .set({});
+
+    QuerySnapshot query = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.firebaseUser.uid)
+        .collection('cart')
+        .get();
+
+    for (DocumentSnapshot doc in query.docs) {
+      doc.reference.delete();
+    }
+
+    products.clear();
+
+    couponCode = null;
+    discountPercentage = 0;
+
+    isLoading = false;
+    notifyListeners();
+
+    return refOrder.id;
+  }
 }
