@@ -9,6 +9,13 @@ class TriggerMap {
   List<List<String>> _listKeys = [];
   List<void Function(Map<String, dynamic>)> _listKeysFunctions = [];
 
+  void _triggerByPair(String key, dynamic value) {
+    for (var i = 0; i < _anyUpdateFunctions.length; i++)
+      _anyUpdateFunctions[i]({key: value});
+    for (var i = 0; i < _listKeys.length; i++)
+      if (_listKeys[i].contains(key)) _listKeysFunctions[i]({key: value});
+  }
+
   /// Initializes or retrieves a TriggerMap instance by [id] parameter.
   static TriggerMap instance(String id) {
     if (_instances[id] == null) {
@@ -24,13 +31,13 @@ class TriggerMap {
     _instances.remove(id);
   }
 
-  /// Adds a [function] to be triggered if one of the [keys] of the argument is updated.
+  /// Subscribe a [function] to be triggered if one of the [keys] of the argument is updated.
   ///
   /// If the [keys] argument is null, the [function] will be triggered after any update.
-  /// Many of this [function] can be registered.
+  /// Many functions of any update can be registered.
   ///
   /// The [first parameter] of the [function] contains a map of what was updated.
-  void addListener(void Function(Map<String, dynamic>) function,
+  void subscribe(void Function(Map<String, dynamic>) function,
       {List<String> keys}) {
     if (keys == null)
       _anyUpdateFunctions.add(function);
@@ -40,24 +47,61 @@ class TriggerMap {
     }
   }
 
-  /// Merges an entire map with the current.
-  ///
-  /// If a key of [data] is already in the current map, its value is overwritten.
-  void mergeMap(Map<String, dynamic> data) {
-    map.addAll(data);
-    for (var i = 0; i < _anyUpdateFunctions.length; i++)
-      _anyUpdateFunctions[i](data);
-    for (var i = 0; i < _listKeys.length; i++)
-      if (data.keys.any((key) => _listKeys[i].contains(key)))
-        _listKeysFunctions[i](data);
+  /// Removes the first occurrence of [function] from the list of subscribers.
+  void unsubscribe(void Function(Map<String, dynamic>) function) {
+    _anyUpdateFunctions.remove(function);
+    int i = _listKeysFunctions.indexOf(function);
+    if (i != -1) {
+      _listKeys.removeAt(i);
+      _listKeysFunctions.removeAt(i);
+    }
   }
 
-  /// Defines a [key-value] pair in the current map.
+  /// Adds all key/value pairs of [other] to the current map.
+  ///
+  /// If a key of [other] is already in the current map, its value is overwritten.
+  void mergeAll(Map<String, dynamic> other) {
+    map.addAll(other);
+    for (var i = 0; i < _anyUpdateFunctions.length; i++)
+      _anyUpdateFunctions[i](other);
+    for (var i = 0; i < _listKeys.length; i++)
+      if (other.keys.any((key) => _listKeys[i].contains(key)))
+        _listKeysFunctions[i](other);
+  }
+
+  /// Adds all key/value pairs of [other] in the map of the [key].
+  ///
+  /// If a key of [other] is already in the map of the [key], its value is overwritten.
+  void mergeKey(String key, Map<String, dynamic> other) {
+    (map[key] as Map<String, dynamic>).addAll(other);
+    _triggerByPair(key, other);
+  }
+
+  /// Defines a [key/value] pair in the current map.
   void setKey(String key, dynamic value) {
     map[key] = value;
+    _triggerByPair(key, value);
+  }
+
+  /// Just trigger the subscribed functions associated with the [keys] argument and functions of any update.
+  void trigger({List<String> keys}) {
     for (var i = 0; i < _anyUpdateFunctions.length; i++)
-      _anyUpdateFunctions[i]({key: value});
-    for (var i = 0; i < _listKeys.length; i++)
-      if (_listKeys[i].contains(key)) _listKeysFunctions[i]({key: value});
+      _anyUpdateFunctions[i](
+        keys == null
+            ? {}
+            : Map.fromIterables(
+                keys,
+                List.filled(keys.length, null, growable: false),
+              ),
+      );
+    if (keys != null)
+      for (var i = 0; i < _listKeys.length; i++)
+        if (keys.any((key) => _listKeys[i].contains(key)))
+          _listKeysFunctions[i](
+            Map.fromIterables(
+              keys,
+              List.filled(keys.length, null, growable: false),
+            ),
+          );
   }
 }
