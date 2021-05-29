@@ -1,20 +1,14 @@
-/// Class to trigger functions by keys when updating values at a Map<String, dynamic>
+/// Class to trigger functions when updating keys at an internal Map<String, dynamic>
 ///
 /// Author: flavioReboucasSantos@gmail.com
 
 class TriggerMap {
   static Map<String, TriggerMap> _instances = Map();
+
   Map<String, dynamic> map = Map();
   List<void Function(Map<String, dynamic>)> _anyUpdateFunctions = [];
   List<List<String>> _listKeys = [];
   List<void Function(Map<String, dynamic>)> _listKeysFunctions = [];
-
-  void _triggerByPair(String key, dynamic value) {
-    for (var i = 0; i < _anyUpdateFunctions.length; i++)
-      _anyUpdateFunctions[i]({key: value});
-    for (var i = 0; i < _listKeys.length; i++)
-      if (_listKeys[i].contains(key)) _listKeysFunctions[i]({key: value});
-  }
 
   /// Initializes or retrieves a TriggerMap instance by [id] parameter.
   static TriggerMap instance(String id) {
@@ -29,6 +23,13 @@ class TriggerMap {
   /// Removes a TriggerMap instance by [id] parameter, releasing it to store a new instance.
   static void clear(String id) {
     _instances.remove(id);
+  }
+
+  void _triggerByPair(String key, dynamic value) {
+    for (var i = 0; i < _anyUpdateFunctions.length; i++)
+      _anyUpdateFunctions[i]({key: value});
+    for (var i = 0; i < _listKeys.length; i++)
+      if (_listKeys[i].contains(key)) _listKeysFunctions[i]({key: value});
   }
 
   /// Subscribes a [function] to be triggered if one of the [keys] of the argument is updated.
@@ -57,9 +58,9 @@ class TriggerMap {
     }
   }
 
-  /// Adds all key/value pairs of [other] to the current map.
+  /// Adds all key/value pairs of [other] to the internal map.
   ///
-  /// If a key of [other] is already in the current map, its value is overwritten.
+  /// If a key of [other] is already in the internal map, its value is overwritten.
   void mergeAll(Map<String, dynamic> other) {
     map.addAll(other);
     for (var i = 0; i < _anyUpdateFunctions.length; i++)
@@ -69,7 +70,7 @@ class TriggerMap {
         _listKeysFunctions[i](other);
   }
 
-  /// Adds all key/value pairs of [other] in the map of the [key].
+  /// Adds all key/value pairs of [other] to the map of the [key].
   ///
   /// If a key of [other] is already in the map of the [key], its value is overwritten.
   void mergeKey(String key, Map<String, dynamic> other) {
@@ -77,7 +78,7 @@ class TriggerMap {
     _triggerByPair(key, other);
   }
 
-  /// Defines a [key/value] pair in the current map.
+  /// Defines a [key/value] pair in the internal map.
   void setKey(String key, dynamic value) {
     map[key] = value;
     _triggerByPair(key, value);
