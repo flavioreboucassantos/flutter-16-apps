@@ -19,19 +19,19 @@ class TriggerMap {
   /// Initializes or retrieves a TriggerMap instance by [id] parameter.
   static TriggerMap instance(String id) {
     if (_instances[id] == null) {
-      final newInstance = TriggerMap();
+      final TriggerMap newInstance = TriggerMap();
       _instances[id] = newInstance;
       return newInstance;
     }
     return _instances[id];
   }
 
-  /// Removes a TriggerMap instance by [id] parameter, releasing the identifier to store a new instance.
+  /// Removes a TriggerMap instance by [id] parameter, releasing it to store a new instance.
   static void clear(String id) {
     _instances.remove(id);
   }
 
-  /// Subscribe a [function] to be triggered if one of the [keys] of the argument is updated.
+  /// Subscribes a [function] to be triggered if one of the [keys] of the argument is updated.
   ///
   /// If the [keys] argument is null, the [function] will be triggered after any update.
   /// Many functions of any update can be registered.
