@@ -1,10 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:loja_virtual/datas/cart_product.dart';
 import 'package:loja_virtual/models/user_model.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CartModel extends Model {
+class CartModel extends TriggerMap {
   UserModel user;
 
   List<CartProduct> products = [];
@@ -14,9 +13,6 @@ class CartModel extends Model {
   int discountPercentage = 0;
 
   bool isLoading = false;
-
-  static CartModel of(BuildContext context) =>
-      ScopedModel.of<CartModel>(context);
 
   CartModel(this.user) {
     if (user.isLoggedIn()) _loadCartItems();
@@ -31,11 +27,20 @@ class CartModel extends Model {
 
     products = query.docs.map((doc) => CartProduct.fromDocument(doc)).toList();
 
-    notifyListeners();
+    trigger(keys: ['length', 'body']);
+  }
+
+  void reset() {
+    products.clear();
+    couponCode = null;
+    discountPercentage = 0;
+    if (user.isLoggedIn()) _loadCartItems();
   }
 
   void addCartItem(CartProduct cartProduct) {
     products.add(cartProduct);
+
+    isLoading = true;
 
     FirebaseFirestore.instance
         .collection('users')
@@ -44,9 +49,10 @@ class CartModel extends Model {
         .add(cartProduct.toMap())
         .then((doc) {
       cartProduct.cid = doc.id;
-    });
 
-    notifyListeners();
+      isLoading = false;
+      trigger(keys: ['body']);
+    });
   }
 
   void removeCartItem(CartProduct cartProduct) {
@@ -59,7 +65,7 @@ class CartModel extends Model {
 
     products.remove(cartProduct);
 
-    notifyListeners();
+    trigger(keys: ['length', 'body']);
   }
 
   void decProduct(CartProduct cartProduct) {
@@ -72,7 +78,7 @@ class CartModel extends Model {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    notifyListeners();
+    trigger(keys: [cartProduct.cid, 'prices']);
   }
 
   void incProduct(CartProduct cartProduct) {
@@ -85,18 +91,18 @@ class CartModel extends Model {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    notifyListeners();
+    trigger(keys: [cartProduct.cid, 'prices']);
   }
 
   void setCoupon(String couponCode, int discountPercentage) {
     this.couponCode = couponCode;
     this.discountPercentage = discountPercentage;
 
-    notifyListeners();
+    trigger(keys: ['prices']);
   }
 
   void updatePrices() {
-    notifyListeners();
+    trigger(keys: ['prices']);
   }
 
   double getProductsPrice() {
@@ -119,7 +125,7 @@ class CartModel extends Model {
     if (products.length == 0) return null;
 
     isLoading = true;
-    notifyListeners();
+    trigger(keys: ['body']);
 
     double productsPrice = getProductsPrice();
     double shipPrice = getShipPrice();
@@ -154,12 +160,11 @@ class CartModel extends Model {
     }
 
     products.clear();
-
     couponCode = null;
     discountPercentage = 0;
 
     isLoading = false;
-    notifyListeners();
+    trigger(keys: ['length', 'body']);
 
     return refOrder.id;
   }

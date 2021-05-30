@@ -6,6 +6,8 @@ import 'package:loja_virtual/screens/home_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 
+import 'classes/trigger_map.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -13,23 +15,22 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  final UserModel model = UserModel();
+
   @override
   Widget build(BuildContext context) {
     return ScopedModel<UserModel>(
-      model: UserModel(),
+      model: model,
       child: ScopedModelDescendant<UserModel>(
         builder: (context, widget, model) {
-          return ScopedModel<CartModel>(
-            model: CartModel(model),
-            child: MaterialApp(
-              title: 'Flutter\'s Clothing',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-                primaryColor: Color.fromARGB(255, 4, 125, 141),
-              ),
-              debugShowCheckedModeBanner: false,
-              home: HomeScreen(),
+          return MaterialApp(
+            title: 'Flutter\'s Clothing',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              primaryColor: Color.fromARGB(255, 4, 125, 141),
             ),
+            debugShowCheckedModeBanner: false,
+            home: HomeScreen(),
           );
         },
       ),

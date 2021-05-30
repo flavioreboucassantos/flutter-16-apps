@@ -1,17 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:loja_virtual/models/cart_model.dart';
-import 'package:scoped_model/scoped_model.dart';
 
-class CartPrice extends StatelessWidget {
+class CartPrice extends StatefulWidget {
   final VoidCallback buy;
 
   CartPrice(this.buy);
 
   @override
+  _CartPriceState createState() => _CartPriceState();
+}
+
+class _CartPriceState extends State<CartPrice> {
+  final CartModel model = TriggerMap.singleton<CartModel>();
+
+  void update(Map<String, dynamic> data) {
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    model.subscribe(update, keys: ['prices']);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    model.unsubscribe(update);
+  }
+
+  @override
   Widget build(BuildContext context) {
     Color primaryColor = Theme.of(context).primaryColor;
-
-    CartModel model = CartModel.of(context);
 
     double price = model.getProductsPrice();
     double discount = model.getDiscount();
@@ -76,7 +97,7 @@ class CartPrice extends StatelessWidget {
             ),
             SizedBox(height: 12.0),
             ElevatedButton(
-              onPressed: buy,
+              onPressed: widget.buy,
               child: Text('Finalizar Pedido'),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(primaryColor),

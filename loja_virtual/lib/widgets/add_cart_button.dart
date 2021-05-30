@@ -3,6 +3,7 @@ import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:loja_virtual/datas/cart_product.dart';
 import 'package:loja_virtual/datas/product_data.dart';
 import 'package:loja_virtual/models/cart_model.dart';
+import 'package:loja_virtual/models/cart_product_model.dart';
 import 'package:loja_virtual/models/user_model.dart';
 import 'package:loja_virtual/screens/cart_screen.dart';
 import 'package:loja_virtual/screens/login_screen.dart';
@@ -17,18 +18,11 @@ class AddCartButton extends StatefulWidget {
 }
 
 class _AddCartButtonState extends State<AddCartButton> {
-  TriggerMap _addCartTriggerMap = TriggerMap.instance('addCart');
+  final model = TriggerMap.singleton<CartProductModel>();
   bool _loaded = false;
 
-  void update(Map<String, dynamic> data) {
-    if (!_loaded) {
-      _loaded = true;
-      setState(() {});
-    }
-  }
-
   _AddCartButtonState() {
-    _addCartTriggerMap.subscribe((data) {
+    model.subscribe((data) {
       if (!_loaded) {
         _loaded = true;
         setState(() {});
@@ -52,12 +46,12 @@ class _AddCartButtonState extends State<AddCartButton> {
             ? () {
                 if (UserModel.of(context).isLoggedIn()) {
                   CartProduct cartProduct = CartProduct();
-                  cartProduct.size = _addCartTriggerMap.map['size'];
+                  cartProduct.size = model.size;
                   cartProduct.quantity = 1;
                   cartProduct.pid = widget.productData.id;
                   cartProduct.category = widget.productData.category;
 
-                  CartModel.of(context).addCartItem(cartProduct);
+                  TriggerMap.singleton<CartModel>().addCartItem(cartProduct);
 
                   Navigator.of(context).push(
                     MaterialPageRoute(

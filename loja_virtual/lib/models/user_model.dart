@@ -1,13 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter/material.dart';
+
+import 'cart_model.dart';
 
 class UserModel extends Model {
   FirebaseAuth _auth = FirebaseAuth.instance;
   User firebaseUser;
 
   Map<String, dynamic> userData = Map();
+  CartModel cartModel;
 
   bool isLoading = false;
 
@@ -16,6 +20,7 @@ class UserModel extends Model {
 
   UserModel() {
     _loadCurrentUser();
+    cartModel = TriggerMap.singleton<CartModel>(model: CartModel(this));
   }
 
   void signUp({
@@ -40,6 +45,8 @@ class UserModel extends Model {
       onSuccess();
       isLoading = false;
       notifyListeners();
+
+      cartModel.reset();
     }).catchError((e) {
       onFail();
       isLoading = false;
@@ -66,6 +73,8 @@ class UserModel extends Model {
       onSuccess();
       isLoading = false;
       notifyListeners();
+
+      cartModel.reset();
     }).catchError((e) {
       onFail();
       isLoading = false;
@@ -80,6 +89,8 @@ class UserModel extends Model {
     firebaseUser = null;
 
     notifyListeners();
+
+    cartModel.reset();
   }
 
   void recoverPass(String email) {
@@ -99,7 +110,7 @@ class UserModel extends Model {
   }
 
   Future<void> _loadCurrentUser() async {
-    if (firebaseUser == null) firebaseUser = await _auth.currentUser;
+    if (firebaseUser == null) firebaseUser = _auth.currentUser;
     if (firebaseUser != null) {
       if (userData['name'] == null) {
         DocumentSnapshot docUser = await FirebaseFirestore.instance

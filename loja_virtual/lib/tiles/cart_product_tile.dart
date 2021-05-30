@@ -1,18 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:loja_virtual/datas/cart_product.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loja_virtual/datas/product_data.dart';
 import 'package:loja_virtual/models/cart_model.dart';
 
-class CartProductTile extends StatelessWidget {
+class CartProductTile extends StatefulWidget {
   final CartProduct cartProduct;
-
-  BuildContext _context;
 
   CartProductTile(this.cartProduct);
 
+  @override
+  _CartProductTileState createState() => _CartProductTileState();
+}
+
+class _CartProductTileState extends State<CartProductTile> {
+  CartModel model = TriggerMap.singleton<CartModel>();
+  CartProduct cartProduct;
+
+  void update(Map<String, dynamic> data) {
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    cartProduct = widget.cartProduct;
+    model.subscribe(update, keys: [cartProduct.cid]);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    model.unsubscribe(update);
+  }
+
   Widget _buildContent() {
-    Color primaryColor = Theme.of(_context).primaryColor;
+    Color primaryColor = Theme.of(context).primaryColor;
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -53,7 +77,7 @@ class CartProductTile extends StatelessWidget {
                       color: primaryColor,
                       onPressed: cartProduct.quantity > 1
                           ? () {
-                              CartModel.of(_context).decProduct(cartProduct);
+                              model.decProduct(cartProduct);
                             }
                           : null,
                     ),
@@ -62,12 +86,12 @@ class CartProductTile extends StatelessWidget {
                       icon: Icon(Icons.add),
                       color: primaryColor,
                       onPressed: () {
-                        CartModel.of(_context).incProduct(cartProduct);
+                        model.incProduct(cartProduct);
                       },
                     ),
                     TextButton(
                       onPressed: () {
-                        CartModel.of(_context).removeCartItem(cartProduct);
+                        model.removeCartItem(cartProduct);
                       },
                       child: Text(
                         'Remover',
@@ -86,7 +110,6 @@ class CartProductTile extends StatelessWidget {
 
   Widget _getChild() {
     if (cartProduct.productData == null) {
-      CartModel model = CartModel.of(_context);
       model.productsToLoad++;
       return FutureBuilder<DocumentSnapshot>(
         future: FirebaseFirestore.instance
@@ -115,8 +138,6 @@ class CartProductTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    _context = context;
-
     return Card(
       margin: EdgeInsets.symmetric(
         horizontal: 8.0,
