@@ -12,6 +12,8 @@ class CartModel extends TriggerMap {
   String couponCode;
   int discountPercentage = 0;
 
+  double _productsPrice = 0.0;
+
   bool isLoading = false;
 
   CartModel(this.user) {
@@ -19,6 +21,8 @@ class CartModel extends TriggerMap {
   }
 
   void _loadCartItems() async {
+    isLoading = true;
+
     QuerySnapshot query = await FirebaseFirestore.instance
         .collection('users')
         .doc(user.firebaseUser.uid)
@@ -27,7 +31,8 @@ class CartModel extends TriggerMap {
 
     products = query.docs.map((doc) => CartProduct.fromDocument(doc)).toList();
 
-    trigger(keys: ['length', 'body']);
+    isLoading = false;
+    trigger(['length', 'body']);
   }
 
   void reset() {
@@ -51,11 +56,11 @@ class CartModel extends TriggerMap {
       cartProduct.cid = doc.id;
 
       isLoading = false;
-      trigger(keys: ['body']);
+      trigger(['body']);
     });
   }
 
-  void removeCartItem(CartProduct cartProduct) {
+  void removeCartItem(CartProduct cartProduct) async {
     FirebaseFirestore.instance
         .collection('users')
         .doc(user.firebaseUser.uid)
@@ -64,8 +69,9 @@ class CartModel extends TriggerMap {
         .delete();
 
     products.remove(cartProduct);
+    unsubscribe(key: cartProduct.cid);
 
-    trigger(keys: ['length', 'body']);
+    trigger(['length', 'body']);
   }
 
   void decProduct(CartProduct cartProduct) {
@@ -78,7 +84,7 @@ class CartModel extends TriggerMap {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    trigger(keys: [cartProduct.cid, 'prices']);
+    trigger([cartProduct.cid, 'prices']);
   }
 
   void incProduct(CartProduct cartProduct) {
@@ -91,30 +97,33 @@ class CartModel extends TriggerMap {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    trigger(keys: [cartProduct.cid, 'prices']);
+    trigger([cartProduct.cid, 'prices']);
   }
 
   void setCoupon(String couponCode, int discountPercentage) {
     this.couponCode = couponCode;
     this.discountPercentage = discountPercentage;
 
-    trigger(keys: ['prices']);
+    trigger(['prices']);
   }
 
   void updatePrices() {
-    trigger(keys: ['prices']);
+    trigger(['prices']);
+  }
+
+  void updateProductsPrice() {
+    _productsPrice = 0.0;
+    for (CartProduct c in products)
+      if (c.productData != null)
+        _productsPrice += c.quantity * c.productData.price;
   }
 
   double getProductsPrice() {
-    double price = 0.0;
-    for (CartProduct c in products) {
-      if (c.productData != null) price += c.quantity * c.productData.price;
-    }
-    return price;
+    return _productsPrice;
   }
 
   double getDiscount() {
-    return getProductsPrice() * discountPercentage / 100;
+    return _productsPrice * discountPercentage / 100;
   }
 
   double getShipPrice() {
@@ -125,8 +134,9 @@ class CartModel extends TriggerMap {
     if (products.length == 0) return null;
 
     isLoading = true;
-    trigger(keys: ['body']);
+    trigger(['body']);
 
+    updateProductsPrice();
     double productsPrice = getProductsPrice();
     double shipPrice = getShipPrice();
     double discount = getDiscount();
@@ -164,7 +174,7 @@ class CartModel extends TriggerMap {
     discountPercentage = 0;
 
     isLoading = false;
-    trigger(keys: ['length', 'body']);
+    trigger(['length', 'body']);
 
     return refOrder.id;
   }

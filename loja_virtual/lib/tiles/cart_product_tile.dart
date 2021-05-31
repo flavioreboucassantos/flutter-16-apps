@@ -18,23 +18,6 @@ class _CartProductTileState extends State<CartProductTile> {
   CartModel model = TriggerMap.singleton<CartModel>();
   CartProduct cartProduct;
 
-  void update(Map<String, dynamic> data) {
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    cartProduct = widget.cartProduct;
-    model.subscribe(update, keys: [cartProduct.cid]);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    model.unsubscribe(update);
-  }
-
   Widget _buildContent() {
     Color primaryColor = Theme.of(context).primaryColor;
 
@@ -122,7 +105,9 @@ class _CartProductTileState extends State<CartProductTile> {
           if (snapshot.hasData) {
             cartProduct.productData = ProductData.fromDocument(snapshot.data);
             model.productsToLoad--;
+
             if (model.productsToLoad == 0) model.updatePrices();
+
             return _buildContent();
           } else
             return Container(
@@ -138,6 +123,11 @@ class _CartProductTileState extends State<CartProductTile> {
 
   @override
   Widget build(BuildContext context) {
+    cartProduct = widget.cartProduct;
+    model.subscribe((data) {
+      setState(() {});
+    }, cartProduct.cid);
+
     return Card(
       margin: EdgeInsets.symmetric(
         horizontal: 8.0,

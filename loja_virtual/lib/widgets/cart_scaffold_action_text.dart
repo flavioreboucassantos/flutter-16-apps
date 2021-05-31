@@ -10,24 +10,18 @@ class CartScaffoldActionText extends StatefulWidget {
 class _CartScaffoldActionTextState extends State<CartScaffoldActionText> {
   final CartModel model = TriggerMap.singleton<CartModel>();
 
-  void update(Map<String, dynamic> data) {
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    model.subscribe(update, keys: ['length']);
-  }
-
   @override
   void dispose() {
     super.dispose();
-    model.unsubscribe(update);
+    model.unsubscribe(key: 'length');
   }
 
   @override
   Widget build(BuildContext context) {
+    model.subscribe((data) {
+      setState(() {});
+    }, 'length');
+
     int p = model.products.length;
     return Text(
       '${p ?? 0} ${p == 1 ? 'ITEM' : 'ITENS'}',

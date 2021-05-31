@@ -4,7 +4,7 @@ import 'package:loja_virtual/models/cart_model.dart';
 import 'package:loja_virtual/models/user_model.dart';
 import 'package:loja_virtual/screens/login_screen.dart';
 import 'package:loja_virtual/tiles/cart_product_tile.dart';
-import 'package:loja_virtual/widgets/cart_price.dart';
+import 'package:loja_virtual/widgets/cart_prices.dart';
 import 'package:loja_virtual/widgets/discount_card.dart';
 import 'package:loja_virtual/widgets/ship_card.dart';
 
@@ -16,24 +16,18 @@ class CartScaffoldBody extends StatefulWidget {
 class _CartScaffoldBodyState extends State<CartScaffoldBody> {
   final CartModel model = TriggerMap.singleton<CartModel>();
 
-  void update(Map<String, dynamic> data) {
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    model.subscribe(update, keys: ['body']);
-  }
-
   @override
   void dispose() {
     super.dispose();
-    model.unsubscribe(update);
+    model.unsubscribe(key: 'body');
   }
 
   @override
   Widget build(BuildContext context) {
+    model.subscribe((data) {
+      setState(() {});
+    }, 'body');
+
     bool isLoggedIn = UserModel.of(context).isLoggedIn();
     Color primaryColor = Theme.of(context).primaryColor;
 
@@ -102,13 +96,13 @@ class _CartScaffoldBodyState extends State<CartScaffoldBody> {
         Column(
           children: model.products
               .map(
-                (product) => CartProductTile(product),
+                (cartProduct) => CartProductTile(cartProduct),
               )
               .toList(),
         ),
         DiscountCard(),
         ShipCard(),
-        CartPrice(() async {
+        CartPrices(() async {
           String orderId = await model.finishOrder();
           if (orderId != null) print(orderId);
         }),

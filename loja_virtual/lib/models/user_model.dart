@@ -20,7 +20,7 @@ class UserModel extends Model {
 
   UserModel() {
     _loadCurrentUser();
-    cartModel = TriggerMap.singleton<CartModel>(model: CartModel(this));
+    cartModel = TriggerMap.singleton<CartModel>(CartModel(this));
   }
 
   void signUp({

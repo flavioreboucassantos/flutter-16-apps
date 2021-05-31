@@ -2,38 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:loja_virtual/classes/trigger_map.dart';
 import 'package:loja_virtual/models/cart_model.dart';
 
-class CartPrice extends StatefulWidget {
+class CartPrices extends StatefulWidget {
   final VoidCallback buy;
 
-  CartPrice(this.buy);
+  CartPrices(this.buy);
 
   @override
-  _CartPriceState createState() => _CartPriceState();
+  _CartPricesState createState() => _CartPricesState();
 }
 
-class _CartPriceState extends State<CartPrice> {
+class _CartPricesState extends State<CartPrices> {
   final CartModel model = TriggerMap.singleton<CartModel>();
-
-  void update(Map<String, dynamic> data) {
-    setState(() {});
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    model.subscribe(update, keys: ['prices']);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    model.unsubscribe(update);
-  }
 
   @override
   Widget build(BuildContext context) {
+    model.subscribe((data) {
+      setState(() {});
+    }, 'prices');
+
     Color primaryColor = Theme.of(context).primaryColor;
 
+    model.updateProductsPrice();
     double price = model.getProductsPrice();
     double discount = model.getDiscount();
     double ship = model.getShipPrice();

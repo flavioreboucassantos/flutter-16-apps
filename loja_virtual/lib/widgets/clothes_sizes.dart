@@ -12,7 +12,7 @@ class ClothesSizes extends StatefulWidget {
 }
 
 class _ClothesSizesState extends State<ClothesSizes> {
-  final model = TriggerMap.singleton<CartProductModel>();
+  final CartProductModel model = TriggerMap.singleton<CartProductModel>();
 
   @override
   Widget build(BuildContext context) {
