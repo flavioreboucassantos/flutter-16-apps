@@ -221,17 +221,23 @@ class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
 
   @override
   void initState() {
-    super.initState();
     if (model == null) model = TriggerMap.singleton<T>();
     model.subscribeBuilder(builderKey, this);
+    super.initState();
   }
 
   @override
   void didUpdateWidget(TriggerBuilder oldWidget) {
-    if (widget.model != null) model = widget.model;
+    bool hasModel = widget.model != null;
     builderKey = widget.builderKey;
-    if (oldWidget.builderKey != builderKey) {
-      model.unsubscribeBuilder(this);
+    if (oldWidget.builderKey == builderKey) {
+      if (hasModel) model = widget.model;
+    } else {
+      if (hasModel) {
+        model.unsubscribeBuilder(this);
+        model = widget.model;
+      } else
+        model.unsubscribeBuilder(this);
       model.subscribeBuilder(builderKey, this);
     }
     super.didUpdateWidget(oldWidget);
@@ -239,8 +245,8 @@ class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
 
   @override
   void deactivate() {
-    super.deactivate();
     model.unsubscribeBuilder(this);
+    super.deactivate();
   }
 
   void trigger(Map<String, dynamic> other) {
