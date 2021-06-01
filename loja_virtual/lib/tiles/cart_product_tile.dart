@@ -104,8 +104,8 @@ class _CartProductTileState extends State<CartProductTile> {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             cartProduct.productData = ProductData.fromDocument(snapshot.data);
-            model.productsToLoad--;
 
+            model.productsToLoad--;
             if (model.productsToLoad == 0) model.updatePrices();
 
             return _buildContent();
