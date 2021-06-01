@@ -3,17 +3,19 @@ import 'package:flutter/material.dart';
 /// Class to trigger functions when updating keys at an internal Map<String, dynamic>
 ///
 /// Author: flavioReboucasSantos@gmail.com
-
 class TriggerMap {
   static Map<String, TriggerMap> _instances = Map<String, TriggerMap>();
   static List<TriggerMap> _singletons = [];
 
-  Map<String, dynamic> map = Map<String, dynamic>();
+  final Map<String, dynamic> map = Map<String, dynamic>();
 
-  List<void Function(Map<String, dynamic>)> _anyUpdateFunctions = [];
+  final List<void Function(Map<String, dynamic>)> _anyUpdateFunctions = [];
 
-  List<String> _listKeys = [];
-  List<void Function(Map<String, dynamic>)> _listKeysFunctions = [];
+  final _mapKeysFunctions = Map<String, void Function(Map<String, dynamic>)>();
+
+  final List<_TriggerBuilderState> _anyTriggerBuilder = [];
+  final List<String> _listBuilderKey = [];
+  final List<_TriggerBuilderState> _listBuilder = [];
 
   /// Initializes or retrieves a TriggerMap instance by [id] parameter.
   static TriggerMap instance(String id) {
@@ -51,49 +53,51 @@ class TriggerMap {
     _instances.remove(id);
   }
 
-  void _triggerAnyUpdate(Map<String, dynamic> other) {
+  void _triggerAny(Map<String, dynamic> other) {
     for (var i = 0; i < _anyUpdateFunctions.length; i++)
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _anyUpdateFunctions[i](other));
+      _anyUpdateFunctions[i](other);
+
+    for (var i = 0; i < _anyTriggerBuilder.length; i++)
+      _anyTriggerBuilder[i].trigger(other);
   }
 
   void _triggerByPair(String key, dynamic value) {
-    _triggerAnyUpdate({key: value});
+    void Function(Map<String, dynamic>) function = _mapKeysFunctions[key];
+    if (function != null) function({key: value});
 
-    for (var start = 0; start < _listKeys.length; start++) {
-      int i = _listKeys.indexOf(key, start);
+    for (var start = 0; start < _listBuilderKey.length; start++) {
+      int i = _listBuilderKey.indexOf(key, start);
       if (i == -1) break;
-      WidgetsBinding.instance
-          .addPostFrameCallback((_) => _listKeysFunctions[i]({key: value}));
+      _listBuilder[i].trigger({key: value});
       start = i + 1;
     }
   }
 
   void _triggerByKeys(List<String> keys, Map<String, dynamic> other) {
-    for (var i = 0; i < _listKeys.length; i++)
-      if (keys.contains(_listKeys[i]))
-        WidgetsBinding.instance
-            .addPostFrameCallback((_) => _listKeysFunctions[i](other));
+    void Function(Map<String, dynamic>) function;
+    for (var i = 0; i < keys.length; i++) {
+      function = _mapKeysFunctions[keys[i]];
+      if (function != null) function(other);
+    }
+
+    for (var i = 0; i < _listBuilderKey.length; i++)
+      if (keys.contains(_listBuilderKey[i])) _listBuilder[i].trigger(other);
   }
 
-  /// Subscribes a [function] to be triggered if one of the [keys] of the argument is updated.
+  /// Subscribes a [function] to be triggered if the [key] parameter is updated or triggered.
   ///
-  /// If the [keys] parameter is null, the [function] will be triggered after any update.
+  /// If the [key] parameter is already subscribed, its function is overwritten.
+  ///
+  /// If the [key] parameter is null, the [function] will be triggered after any update or trigger.
   /// Many functions of any update can be registered.
+  /// Take care to unsubscribe functions from any update using the same subscribed item.
   ///
   /// The [first parameter] of the [function] contains a map of what was updated.
   void subscribe(void Function(Map<String, dynamic>) function, [String key]) {
     if (key == null)
       _anyUpdateFunctions.add(function);
-    else {
-      int i = _listKeys.indexOf(key);
-      if (i == -1) {
-        _listKeys.add(key);
-        _listKeysFunctions.add(function);
-      } else {
-        _listKeysFunctions[i] = function;
-      }
-    }
+    else
+      _mapKeysFunctions[key] = function;
   }
 
   /// If the [function] argument is not null, finds the [function] and removes the key/function pair from the list of subscribers.
@@ -102,18 +106,30 @@ class TriggerMap {
   void unsubscribe({void Function(Map<String, dynamic>) function, String key}) {
     if (function != null) {
       _anyUpdateFunctions.remove(function);
-      int i = _listKeysFunctions.indexOf(function);
-      if (i != -1) {
-        _listKeys.removeAt(i);
-        _listKeysFunctions.removeAt(i);
-      }
+      _mapKeysFunctions.removeWhere((key, value) => value == function);
     }
     if (key != null) {
-      int i = _listKeys.indexOf(key);
-      if (i != -1) {
-        _listKeys.removeAt(i);
-        _listKeysFunctions.removeAt(i);
+      _mapKeysFunctions.remove(key);
+    }
+  }
+
+  void subscribeBuilder(String builderKey, _TriggerBuilderState builder) {
+    if (builderKey == null) {
+      if (!_anyTriggerBuilder.contains(builder)) {
+        _anyTriggerBuilder.add(builder);
       }
+    } else {
+      _listBuilderKey.add(builderKey);
+      _listBuilder.add(builder);
+    }
+  }
+
+  void unsubscribeBuilder(_TriggerBuilderState builder) {
+    _anyTriggerBuilder.remove(builder);
+    final int i = _listBuilder.indexOf(builder);
+    if (i != -1) {
+      _listBuilderKey.removeAt(i);
+      _listBuilder.removeAt(i);
     }
   }
 
@@ -123,7 +139,7 @@ class TriggerMap {
   void mergeAll(Map<String, dynamic> other) {
     map.addAll(other);
 
-    _triggerAnyUpdate(other);
+    _triggerAny(other);
 
     _triggerByKeys(other.keys.toList(growable: false), other);
   }
@@ -134,6 +150,8 @@ class TriggerMap {
   void mergeKey(String key, Map<String, dynamic> other) {
     (map[key] as Map<String, dynamic>).addAll(other);
 
+    _triggerAny({key: other});
+
     _triggerByPair(key, other);
   }
 
@@ -141,12 +159,14 @@ class TriggerMap {
   void setKey(String key, dynamic value) {
     map[key] = value;
 
+    _triggerAny({key: value});
+
     _triggerByPair(key, value);
   }
 
   /// Just trigger the subscribed functions associated with the [keys] parameter and functions of any update.
   void trigger([List<String> keys]) {
-    _triggerAnyUpdate(
+    _triggerAny(
       keys == null
           ? {}
           : Map.fromIterables(
@@ -164,4 +184,74 @@ class TriggerMap {
         ),
       );
   }
+}
+
+/// Class to build Widgets and update by keys.
+///
+/// Author: flavioReboucasSantos@gmail.com
+class TriggerBuilder<T extends TriggerMap> extends StatefulWidget {
+  final T model;
+  final String builderKey;
+  final Widget Function(
+      BuildContext context, T model, Map<String, dynamic> data) builder;
+
+  const TriggerBuilder({
+    Key key,
+    this.model,
+    this.builderKey,
+    @required this.builder,
+  }) : super(key: key);
+
+  @override
+  _TriggerBuilderState createState() =>
+      _TriggerBuilderState<T>(model, builderKey, builder);
+}
+
+class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
+  T model;
+  String builderKey;
+  Map<String, dynamic> data;
+  Widget Function(
+    BuildContext context,
+    T model,
+    Map<String, dynamic> data,
+  ) builder;
+
+  _TriggerBuilderState(this.model, this.builderKey, this.builder);
+
+  @override
+  void initState() {
+    super.initState();
+    if (model == null) model = TriggerMap.singleton<T>();
+    model.subscribeBuilder(builderKey, this);
+  }
+
+  @override
+  void didUpdateWidget(TriggerBuilder oldWidget) {
+    if (widget.model != null) model = widget.model;
+    builderKey = widget.builderKey;
+    if (oldWidget.builderKey != builderKey) {
+      model.unsubscribeBuilder(this);
+      model.subscribeBuilder(builderKey, this);
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void deactivate() {
+    super.deactivate();
+    model.unsubscribeBuilder(this);
+  }
+
+  void trigger(Map<String, dynamic> other) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        data = other;
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => builder(context, model, data);
 }
