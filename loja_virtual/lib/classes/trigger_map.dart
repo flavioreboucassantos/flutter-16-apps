@@ -88,9 +88,9 @@ class TriggerMap {
   ///
   /// If the [key] parameter is already subscribed, its function is overwritten.
   ///
-  /// If the [key] parameter is null, the [function] will be triggered after any update or trigger.
-  /// Many functions of any update can be registered.
-  /// Take care to unsubscribe functions from any update using the same subscribed item.
+  /// If the [key] parameter is null, the [function] will be triggered after [any update] or trigger event.
+  /// Many functions of [any update] can be registered.
+  /// Take care to unsubscribe functions of [any update] using the same subscribed item.
   ///
   /// The [first parameter] of the [function] contains a map of what was updated.
   void subscribe(void Function(Map<String, dynamic>) function, [String key]) {
@@ -164,7 +164,7 @@ class TriggerMap {
     _triggerByPair(key, value);
   }
 
-  /// Just trigger the subscribed functions associated with the [keys] parameter and functions of any update.
+  /// Just trigger the subscribed functions associated with the [keys] parameter and functions of [any update].
   void trigger([List<String> keys]) {
     _triggerAny(
       keys == null
@@ -186,7 +186,11 @@ class TriggerMap {
   }
 }
 
-/// Class to build Widgets and update by keys.
+/// Class to build Widgets to be updated by the trigger of keys.
+///
+/// It is possible to construct different instances of TriggerBuilder using the same [builderKey] argument to trigger all builders at the same event.
+///
+/// If the [builderKey] argument is null, the [builder] will trigger after [any update] or trigger event.
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerBuilder<T extends TriggerMap> extends StatefulWidget {
@@ -228,12 +232,15 @@ class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
 
   @override
   void didUpdateWidget(TriggerBuilder oldWidget) {
-    bool hasModel = widget.model != null;
     builderKey = widget.builderKey;
     if (oldWidget.builderKey == builderKey) {
-      if (hasModel) model = widget.model;
+      if (widget.model != null && widget.model != model) {
+        model.unsubscribeBuilder(this);
+        model = widget.model;
+        model.subscribeBuilder(builderKey, this);
+      }
     } else {
-      if (hasModel) {
+      if (widget.model != null && widget.model != model) {
         model.unsubscribeBuilder(this);
         model = widget.model;
       } else
