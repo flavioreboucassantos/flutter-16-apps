@@ -7,6 +7,6 @@ class CartProductModel extends TriggerMap {
 
   set size(String size) {
     _size = size;
-    trigger();
+    triggerEvent();
   }
 }

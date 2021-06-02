@@ -1,12 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:loja_virtual/classes/trigger_map.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'package:flutter/material.dart';
 
 import 'cart_model.dart';
 
-class UserModel extends Model {
+class UserModel extends TriggerMap {
   FirebaseAuth _auth = FirebaseAuth.instance;
   User firebaseUser;
 
@@ -14,9 +13,6 @@ class UserModel extends Model {
   CartModel cartModel;
 
   bool isLoading = false;
-
-  static UserModel of(BuildContext context) =>
-      ScopedModel.of<UserModel>(context);
 
   UserModel() {
     _loadCurrentUser();
@@ -30,7 +26,7 @@ class UserModel extends Model {
     @required VoidCallback onFail,
   }) {
     isLoading = true;
-    notifyListeners();
+    triggerEvent();
 
     _auth
         .createUserWithEmailAndPassword(
@@ -44,13 +40,13 @@ class UserModel extends Model {
 
       onSuccess();
       isLoading = false;
-      notifyListeners();
+      triggerEvent();
 
       cartModel.reset();
     }).catchError((e) {
       onFail();
       isLoading = false;
-      notifyListeners();
+      triggerEvent();
     });
   }
 
@@ -61,7 +57,7 @@ class UserModel extends Model {
     @required VoidCallback onFail,
   }) async {
     isLoading = true;
-    notifyListeners();
+    triggerEvent();
 
     _auth
         .signInWithEmailAndPassword(email: email, password: pass)
@@ -72,13 +68,13 @@ class UserModel extends Model {
 
       onSuccess();
       isLoading = false;
-      notifyListeners();
+      triggerEvent();
 
       cartModel.reset();
     }).catchError((e) {
       onFail();
       isLoading = false;
-      notifyListeners();
+      triggerEvent();
     });
   }
 
@@ -88,7 +84,7 @@ class UserModel extends Model {
     userData = Map();
     firebaseUser = null;
 
-    notifyListeners();
+    triggerEvent();
 
     cartModel.reset();
   }
@@ -120,6 +116,6 @@ class UserModel extends Model {
         userData = docUser.data();
       }
     }
-    notifyListeners();
+    triggerEvent();
   }
 }

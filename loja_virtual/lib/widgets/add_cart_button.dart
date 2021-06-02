@@ -19,6 +19,7 @@ class AddCartButton extends StatefulWidget {
 
 class _AddCartButtonState extends State<AddCartButton> {
   final model = TriggerMap.singleton<CartProductModel>();
+  final userModel = TriggerMap.singleton<UserModel>();
   bool _loaded = false;
 
   _AddCartButtonState() {
@@ -44,7 +45,7 @@ class _AddCartButtonState extends State<AddCartButton> {
       child: ElevatedButton(
         onPressed: _loaded
             ? () {
-                if (UserModel.of(context).isLoggedIn()) {
+                if (userModel.isLoggedIn()) {
                   CartProduct cartProduct = CartProduct();
                   cartProduct.size = model.size;
                   cartProduct.quantity = 1;
@@ -68,7 +69,7 @@ class _AddCartButtonState extends State<AddCartButton> {
               }
             : null,
         child: Text(
-          UserModel.of(context).isLoggedIn()
+          userModel.isLoggedIn()
               ? 'Adicionar ao Carrinho'
               : 'Entre para Comprar',
           style: TextStyle(

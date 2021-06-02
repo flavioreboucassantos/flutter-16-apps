@@ -32,7 +32,7 @@ class CartModel extends TriggerMap {
     products = query.docs.map((doc) => CartProduct.fromDocument(doc)).toList();
 
     isLoading = false;
-    trigger(['length', 'body']);
+    triggerEvent(['length', 'body']);
   }
 
   void reset() {
@@ -43,8 +43,6 @@ class CartModel extends TriggerMap {
   }
 
   void addCartItem(CartProduct cartProduct) {
-    products.add(cartProduct);
-
     isLoading = true;
 
     FirebaseFirestore.instance
@@ -54,9 +52,10 @@ class CartModel extends TriggerMap {
         .add(cartProduct.toMap())
         .then((doc) {
       cartProduct.cid = doc.id;
+      products.add(cartProduct);
 
       isLoading = false;
-      trigger(['body']);
+      triggerEvent(['length', 'body']);
     });
   }
 
@@ -69,9 +68,8 @@ class CartModel extends TriggerMap {
         .delete();
 
     products.remove(cartProduct);
-    unsubscribe(key: cartProduct.cid);
 
-    trigger(['length', 'body']);
+    triggerEvent(['length', 'body']);
   }
 
   void decProduct(CartProduct cartProduct) {
@@ -84,7 +82,7 @@ class CartModel extends TriggerMap {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    trigger([cartProduct.cid, 'prices']);
+    triggerEvent([cartProduct.cid, 'prices']);
   }
 
   void incProduct(CartProduct cartProduct) {
@@ -97,18 +95,18 @@ class CartModel extends TriggerMap {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    trigger([cartProduct.cid, 'prices']);
+    triggerEvent([cartProduct.cid, 'prices']);
   }
 
   void setCoupon(String couponCode, int discountPercentage) {
     this.couponCode = couponCode;
     this.discountPercentage = discountPercentage;
 
-    trigger(['prices']);
+    triggerEvent(['prices']);
   }
 
   void updatePrices() {
-    trigger(['prices']);
+    triggerEvent(['prices']);
   }
 
   void updateProductsPrice() {
@@ -134,7 +132,7 @@ class CartModel extends TriggerMap {
     if (products.length == 0) return null;
 
     isLoading = true;
-    trigger(['body']);
+    triggerEvent(['body']);
 
     updateProductsPrice();
     double productsPrice = getProductsPrice();
@@ -174,7 +172,7 @@ class CartModel extends TriggerMap {
     discountPercentage = 0;
 
     isLoading = false;
-    trigger(['length', 'body']);
+    triggerEvent(['length', 'body']);
 
     return refOrder.id;
   }
