@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Class to trigger functions when updating keys at an internal Map<String, dynamic>
+/// It trigger functions when updating keys at an internal Map<String, dynamic>
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerMap {
@@ -14,7 +14,7 @@ class TriggerMap {
   final _mapKeysFunctions = Map<String, void Function(Map<String, dynamic>)>();
 
   final List<_TriggerBuilderState> _anyTriggerBuilder = [];
-  final List<String> _listBuilderKey = [];
+  final List<String> _listkeyBuilder = [];
   final List<_TriggerBuilderState> _listBuilder = [];
 
   /// Initializes or retrieves a TriggerMap instance by [id] parameter.
@@ -58,17 +58,17 @@ class TriggerMap {
       _anyUpdateFunctions[i](other);
 
     for (var i = 0; i < _anyTriggerBuilder.length; i++)
-      _anyTriggerBuilder[i].trigger(other);
+      _anyTriggerBuilder[i]._triggerBuilder(other);
   }
 
   void _triggerByPair(String key, dynamic value) {
     void Function(Map<String, dynamic>) function = _mapKeysFunctions[key];
     if (function != null) function({key: value});
 
-    for (var start = 0; start < _listBuilderKey.length; start++) {
-      int i = _listBuilderKey.indexOf(key, start);
+    for (var start = 0; start < _listkeyBuilder.length; start++) {
+      int i = _listkeyBuilder.indexOf(key, start);
       if (i == -1) break;
-      _listBuilder[i].trigger({key: value});
+      _listBuilder[i]._triggerBuilder({key: value});
       start = i + 1;
     }
   }
@@ -80,8 +80,9 @@ class TriggerMap {
       if (function != null) function(other);
     }
 
-    for (var i = 0; i < _listBuilderKey.length; i++)
-      if (keys.contains(_listBuilderKey[i])) _listBuilder[i].trigger(other);
+    for (var i = 0; i < _listkeyBuilder.length; i++)
+      if (keys.contains(_listkeyBuilder[i]))
+        _listBuilder[i]._triggerBuilder(other);
   }
 
   /// Subscribes a [function] to be triggered if the [key] parameter is updated or triggered.
@@ -113,22 +114,22 @@ class TriggerMap {
     }
   }
 
-  void subscribeBuilder(String builderKey, _TriggerBuilderState builder) {
-    if (builderKey == null) {
+  void _subscribeBuilder(String keyBuilder, _TriggerBuilderState builder) {
+    if (keyBuilder == null) {
       if (!_anyTriggerBuilder.contains(builder)) {
         _anyTriggerBuilder.add(builder);
       }
     } else {
-      _listBuilderKey.add(builderKey);
+      _listkeyBuilder.add(keyBuilder);
       _listBuilder.add(builder);
     }
   }
 
-  void unsubscribeBuilder(_TriggerBuilderState builder) {
+  void _unsubscribeBuilder(_TriggerBuilderState builder) {
     _anyTriggerBuilder.remove(builder);
     final int i = _listBuilder.indexOf(builder);
     if (i != -1) {
-      _listBuilderKey.removeAt(i);
+      _listkeyBuilder.removeAt(i);
       _listBuilder.removeAt(i);
     }
   }
@@ -164,8 +165,8 @@ class TriggerMap {
     _triggerByPair(key, value);
   }
 
-  /// Just trigger the subscribed functions associated with the [keys] parameter and functions of [any update].
-  void trigger([List<String> keys]) {
+  /// Just trigger the subscribed functions and builders associated with the [keys] parameter and those of [any update].
+  void triggerEvent([List<String> keys]) {
     _triggerAny(
       keys == null
           ? {}
@@ -186,83 +187,85 @@ class TriggerMap {
   }
 }
 
-/// Class to build Widgets to be updated by the trigger of keys.
+/// Builds a child for a [_TriggerBuilderState].
+typedef Widget _Builder<T extends TriggerMap>(
+  BuildContext context,
+  T model,
+  Map<String, dynamic> data,
+);
+
+/// It is possible to construct different instances of TriggerBuilder using the same [keyBuilder] argument and trigger all builders at the same event.
 ///
-/// It is possible to construct different instances of TriggerBuilder using the same [builderKey] argument to trigger all builders at the same event.
-///
-/// If the [builderKey] argument is null, the [builder] will trigger after [any update] or trigger event.
+/// If the [keyBuilder] argument is null, the [builder] will trigger after [any update] or trigger event.
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerBuilder<T extends TriggerMap> extends StatefulWidget {
   final T model;
-  final String builderKey;
-  final Widget Function(
-      BuildContext context, T model, Map<String, dynamic> data) builder;
+  final String keyBuilder;
+  final _Builder<T> builder;
 
   const TriggerBuilder({
     Key key,
     this.model,
-    this.builderKey,
+    this.keyBuilder,
     @required this.builder,
   }) : super(key: key);
 
+  _Builder<E> _getBuilder<E extends TriggerMap>() {
+    return builder as _Builder<E>;
+  }
+
   @override
   _TriggerBuilderState createState() =>
-      _TriggerBuilderState<T>(model, builderKey, builder);
+      _TriggerBuilderState<T>(model, keyBuilder, builder);
 }
 
 class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
   T model;
-  String builderKey;
+  String keyBuilder;
   Map<String, dynamic> data;
-  Widget Function(
-    BuildContext context,
-    T model,
-    Map<String, dynamic> data,
-  ) builder;
+  _Builder<T> builder;
 
-  _TriggerBuilderState(this.model, this.builderKey, this.builder);
+  _TriggerBuilderState(this.model, this.keyBuilder, this.builder);
 
-  @override
-  void initState() {
-    if (model == null) model = TriggerMap.singleton<T>();
-    model.subscribeBuilder(builderKey, this);
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(TriggerBuilder oldWidget) {
-    builderKey = widget.builderKey;
-    if (oldWidget.builderKey == builderKey) {
-      if (widget.model != null && widget.model != model) {
-        model.unsubscribeBuilder(this);
-        model = widget.model;
-        model.subscribeBuilder(builderKey, this);
-      }
-    } else {
-      if (widget.model != null && widget.model != model) {
-        model.unsubscribeBuilder(this);
-        model = widget.model;
-      } else
-        model.unsubscribeBuilder(this);
-      model.subscribeBuilder(builderKey, this);
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void deactivate() {
-    model.unsubscribeBuilder(this);
-    super.deactivate();
-  }
-
-  void trigger(Map<String, dynamic> other) {
+  void _triggerBuilder(Map<String, dynamic> other) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         data = other;
         setState(() {});
       }
     });
+  }
+
+  @override
+  void initState() {
+    if (model == null) model = TriggerMap.singleton<T>();
+    model._subscribeBuilder(keyBuilder, this);
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(TriggerBuilder oldWidget) {
+    if (widget.keyBuilder == keyBuilder) {
+      if (widget.model != null && widget.model != model) {
+        model._unsubscribeBuilder(this);
+        model = widget.model;
+        model._subscribeBuilder(keyBuilder, this);
+      }
+    } else {
+      model._unsubscribeBuilder(this);
+      if (widget.model != null && widget.model != model) model = widget.model;
+      keyBuilder = widget.keyBuilder;
+      model._subscribeBuilder(keyBuilder, this);
+    }
+    builder = widget._getBuilder();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void deactivate() {
+    model._unsubscribeBuilder(this);
+    super.deactivate();
   }
 
   @override
