@@ -90,7 +90,9 @@ class TriggerMap {
   /// If the [key] parameter is already subscribed, its function is overwritten.
   ///
   /// If the [key] parameter is null, the [function] will be triggered after [any update] or trigger event.
-  /// Many functions of [any update] can be registered.
+  ///
+  /// Many functions of [any update] can be registered and them will always be triggered after the others.
+  ///
   /// Take care to unsubscribe functions of [any update] using the same subscribed item.
   ///
   /// The [first parameter] of the [function] contains a map of what was updated.
@@ -140,9 +142,9 @@ class TriggerMap {
   void mergeAll(Map<String, dynamic> other) {
     map.addAll(other);
 
-    _triggerAny(other);
-
     _triggerByKeys(other.keys.toList(growable: false), other);
+
+    _triggerAny(other);
   }
 
   /// Adds all key/value pairs of [other] to the map of the [key].
@@ -151,31 +153,22 @@ class TriggerMap {
   void mergeKey(String key, Map<String, dynamic> other) {
     (map[key] as Map<String, dynamic>).addAll(other);
 
-    _triggerAny({key: other});
-
     _triggerByPair(key, other);
+
+    _triggerAny({key: other});
   }
 
   /// Defines a [key]/[value] pair to the internal map.
   void setKey(String key, dynamic value) {
     map[key] = value;
 
-    _triggerAny({key: value});
-
     _triggerByPair(key, value);
+
+    _triggerAny({key: value});
   }
 
   /// Just trigger the subscribed functions and builders associated with the [keys] parameter and those of [any update].
   void triggerEvent([List<String> keys]) {
-    _triggerAny(
-      keys == null
-          ? {}
-          : Map.fromIterables(
-              keys,
-              List.filled(keys.length, null, growable: false),
-            ),
-    );
-
     if (keys != null)
       _triggerByKeys(
         keys,
@@ -184,6 +177,15 @@ class TriggerMap {
           List.filled(keys.length, null, growable: false),
         ),
       );
+
+    _triggerAny(
+      keys == null
+          ? {}
+          : Map.fromIterables(
+              keys,
+              List.filled(keys.length, null, growable: false),
+            ),
+    );
   }
 }
 
@@ -197,6 +199,7 @@ typedef Widget _Builder<T extends TriggerMap>(
 /// It is possible to construct different instances of TriggerBuilder using the same [keyBuilder] argument and trigger all at the same event.
 ///
 /// If the [keyBuilder] argument is null, the [builder] will trigger after [any update] or trigger event.
+/// Them will always be triggered after the others.
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerBuilder<T extends TriggerMap> extends StatefulWidget {
