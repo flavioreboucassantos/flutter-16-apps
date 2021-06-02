@@ -194,7 +194,7 @@ typedef Widget _Builder<T extends TriggerMap>(
   Map<String, dynamic> data,
 );
 
-/// It is possible to construct different instances of TriggerBuilder using the same [keyBuilder] argument and trigger all builders at the same event.
+/// It is possible to construct different instances of TriggerBuilder using the same [keyBuilder] argument and trigger all at the same event.
 ///
 /// If the [keyBuilder] argument is null, the [builder] will trigger after [any update] or trigger event.
 ///
