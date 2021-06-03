@@ -303,7 +303,7 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
   /// The [TriggerModel] to provide to the [builder].
   final T model;
 
-  /// The [String] to subscribe the [TriggerBuilder] to rebuilds when
+  /// The [String] to subscribes the [TriggerBuilder] to rebuilds if the [key]
   /// is updated or triggered.
   final String keyBuilder;
 
