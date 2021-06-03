@@ -1,11 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:loja_virtual/classes/trigger_map.dart';
+import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:flutter/material.dart';
 
 import 'cart_model.dart';
 
-class UserModel extends TriggerMap {
+class UserModel extends TriggerModel {
   FirebaseAuth _auth = FirebaseAuth.instance;
   User firebaseUser;
 
@@ -16,7 +16,7 @@ class UserModel extends TriggerMap {
 
   UserModel() {
     _loadCurrentUser();
-    cartModel = TriggerMap.singleton<CartModel>(CartModel(this));
+    cartModel = TriggerModel.singleton<CartModel>(CartModel(this));
   }
 
   void signUp({

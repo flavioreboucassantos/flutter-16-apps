@@ -1,9 +1,9 @@
-import 'package:loja_virtual/classes/trigger_map.dart';
+import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/datas/cart_product.dart';
 import 'package:loja_virtual/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CartModel extends TriggerMap {
+class CartModel extends TriggerModel {
   UserModel user;
 
   List<CartProduct> products = [];

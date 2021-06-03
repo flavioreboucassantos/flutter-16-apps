@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/classes/trigger_map.dart';
+import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/cart_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DiscountCard extends StatelessWidget {
-  final CartModel model = TriggerMap.singleton<CartModel>();
+  final CartModel model = TriggerModel.singleton<CartModel>();
 
   @override
   Widget build(BuildContext context) {

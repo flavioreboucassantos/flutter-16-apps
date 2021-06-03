@@ -1,4 +1,4 @@
-import 'package:loja_virtual/classes/trigger_map.dart';
+import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/user_model.dart';
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/screens/home_screen.dart';
@@ -11,7 +11,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final UserModel model = TriggerMap.singleton<UserModel>(UserModel());
+  final UserModel model = TriggerModel.singleton<UserModel>(UserModel());
 
   @override
   Widget build(BuildContext context) => TriggerBuilder<UserModel>(

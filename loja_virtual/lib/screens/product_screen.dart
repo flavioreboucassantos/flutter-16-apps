@@ -1,6 +1,6 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/classes/trigger_map.dart';
+import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/datas/cart_product.dart';
 import 'package:loja_virtual/datas/product_data.dart';
 import 'package:loja_virtual/models/cart_model.dart';
@@ -8,8 +8,9 @@ import 'package:loja_virtual/screens/cart_screen.dart';
 import 'package:loja_virtual/screens/login_screen.dart';
 
 class ProductScreen extends StatelessWidget {
-  final CartModel cartModel = TriggerMap.singleton<CartModel>();
+  final CartModel cartModel = TriggerModel.singleton<CartModel>();
   final TriggerMap cartProductModel = TriggerMap.instance('CartProductModel');
+
   final ProductData productData;
 
   ProductScreen(this.productData);
@@ -123,9 +124,7 @@ class ProductScreen extends StatelessWidget {
                 ),
                 TriggerBuilder<TriggerMap>(
                   model: cartProductModel,
-                  rebuildOnTrigger: () {
-                    return cartProductModel.map['setted'] == null;
-                  },
+                  rebuildOnChange: () => cartProductModel.map['setted'] == null,
                   builder: (context, model, data) {
                     if (model.map['size'] != null) model.map['setted'] = true;
 
