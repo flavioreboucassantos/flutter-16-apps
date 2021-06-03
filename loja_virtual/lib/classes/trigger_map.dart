@@ -17,7 +17,7 @@ class TriggerMap {
   final List<String> _listkeyBuilder = [];
   final List<_TriggerBuilderState> _listBuilder = [];
 
-  /// Initializes or retrieves a TriggerMap instance by [id] parameter.
+  /// Initializes or retrieves a [TriggerMap] instance by [id] parameter.
   static TriggerMap instance(String id) {
     if (_instances[id] == null) {
       final TriggerMap newInstance = TriggerMap();
@@ -48,7 +48,7 @@ class TriggerMap {
     }
   }
 
-  /// Removes a TriggerMap instance by [id] parameter, releasing it to store a new instance.
+  /// Removes a [TriggerMap] instance by [id] parameter, releasing it to store a new instance.
   static void clear(String id) {
     _instances.remove(id);
   }
@@ -87,13 +87,11 @@ class TriggerMap {
 
   /// Subscribes a [function] to be triggered if the [key] parameter is updated or triggered.
   ///
-  /// If the [key] parameter is already subscribed, its function is overwritten.
+  /// If the [key] parameter is already subscribed, its [function] is overwritten.
   ///
-  /// If the [key] parameter is null, the [function] will be triggered after [any update] or trigger event.
+  /// If the [key] parameter is null, the [function] will trigger from [any update] or [trigger event], always after the others.
   ///
-  /// Many functions of [any update] can be registered and them will always be triggered after the others.
-  ///
-  /// Take care to unsubscribe functions of [any update] using the same subscribed item.
+  /// Take care to unsubscribe functions of [null key] using the same subscribed item.
   ///
   /// The [first parameter] of the [function] contains a map of what was updated.
   void subscribe(void Function(Map<String, dynamic>) function, [String key]) {
@@ -167,8 +165,8 @@ class TriggerMap {
     _triggerAny({key: value});
   }
 
-  /// Just trigger the subscribed functions and builders associated with the [keys] parameter and those of [any update].
-  void triggerEvent([List<String> keys]) {
+  /// Just trigger the subscribed functions and builders associated with the [keys] parameter and those of [null key].
+  void notifyListeners([List<String> keys]) {
     if (keys != null)
       _triggerByKeys(
         keys,
@@ -189,79 +187,83 @@ class TriggerMap {
   }
 }
 
+/// An optional function that determines whether the Widget will rebuild when the event is triggered.
+typedef bool RebuildOnTrigger();
+
 /// Builds a child for a [_TriggerBuilderState].
-typedef Widget _Builder<T extends TriggerMap>(
+typedef Widget StateBuilder<T extends TriggerMap>(
   BuildContext context,
   T model,
   Map<String, dynamic> data,
 );
 
-/// It is possible to construct different instances of TriggerBuilder using the same [keyBuilder] argument and trigger all at the same event.
+/// If the [model] argument is null, finds a [TriggerMap] instance of type [T] provided.
 ///
-/// If the [keyBuilder] argument is null, the [builder] will trigger after [any update] or trigger event.
-/// Them will always be triggered after the others.
+/// If the [model] argument is not null and different from the previous, unsubscribes the previous and subscribe the other.
+///
+/// It is possible to construct different instances of [TriggerBuilder] using the same [keyBuilder] argument, triggering all the instances at the same time.
+///
+/// If the [keyBuilder] argument is null, the [builder] will trigger from [any update] or [trigger event], always after the others.
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerBuilder<T extends TriggerMap> extends StatefulWidget {
   final T model;
   final String keyBuilder;
-  final _Builder<T> builder;
+  final RebuildOnTrigger rebuildOnTrigger;
+  final StateBuilder<T> builder;
 
   const TriggerBuilder({
     Key key,
     this.model,
     this.keyBuilder,
+    this.rebuildOnTrigger,
     @required this.builder,
   }) : super(key: key);
 
-  _Builder<E> _getBuilder<E extends TriggerMap>() {
-    return builder as _Builder<E>;
+  StateBuilder<E> _getBuilder<E extends TriggerMap>() {
+    return builder as StateBuilder<E>;
   }
 
   @override
-  _TriggerBuilderState createState() =>
-      _TriggerBuilderState<T>(model, keyBuilder, builder);
+  _TriggerBuilderState createState() => _TriggerBuilderState<T>(model);
 }
 
 class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
   T model;
-  String keyBuilder;
   Map<String, dynamic> data;
-  _Builder<T> builder;
 
-  _TriggerBuilderState(this.model, this.keyBuilder, this.builder);
+  _TriggerBuilderState(this.model);
 
   void _triggerBuilder(Map<String, dynamic> other) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        data = other;
-        setState(() {});
-      }
-    });
+    if (widget.rebuildOnTrigger == null || widget.rebuildOnTrigger())
+      WidgetsBinding.instance.scheduleFrameCallback((_) {
+        if (mounted) {
+          data = other;
+          setState(() {});
+        }
+      });
   }
 
   @override
   void initState() {
     if (model == null) model = TriggerMap.singleton<T>();
-    model._subscribeBuilder(keyBuilder, this);
+    model._subscribeBuilder(widget.keyBuilder, this);
     super.initState();
   }
 
   @override
   void didUpdateWidget(TriggerBuilder oldWidget) {
-    if (widget.keyBuilder == keyBuilder) {
+    if (oldWidget.keyBuilder == widget.keyBuilder) {
       if (widget.model != null && widget.model != model) {
         model._unsubscribeBuilder(this);
         model = widget.model;
-        model._subscribeBuilder(keyBuilder, this);
+        model._subscribeBuilder(widget.keyBuilder, this);
       }
     } else {
       model._unsubscribeBuilder(this);
       if (widget.model != null && widget.model != model) model = widget.model;
-      keyBuilder = widget.keyBuilder;
-      model._subscribeBuilder(keyBuilder, this);
+      model._subscribeBuilder(widget.keyBuilder, this);
     }
-    builder = widget._getBuilder();
     super.didUpdateWidget(oldWidget);
   }
 
@@ -272,5 +274,6 @@ class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
   }
 
   @override
-  Widget build(BuildContext context) => builder(context, model, data);
+  Widget build(BuildContext context) =>
+      widget._getBuilder<T>()(context, model, data);
 }
