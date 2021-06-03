@@ -235,13 +235,15 @@ class _TriggerBuilderState<T extends TriggerMap> extends State<TriggerBuilder> {
   _TriggerBuilderState(this.model);
 
   void _triggerBuilder(Map<String, dynamic> other) {
-    if (widget.rebuildOnTrigger == null || widget.rebuildOnTrigger())
-      WidgetsBinding.instance.scheduleFrameCallback((_) {
+    if (widget.rebuildOnTrigger == null || widget.rebuildOnTrigger()) {
+      WidgetsBinding.instance.scheduleFrame();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           data = other;
           setState(() {});
         }
       });
+    }
   }
 
   @override
