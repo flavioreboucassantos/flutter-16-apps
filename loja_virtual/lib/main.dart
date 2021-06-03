@@ -14,18 +14,16 @@ class MyApp extends StatelessWidget {
   final UserModel model = TriggerMap.singleton<UserModel>(UserModel());
 
   @override
-  Widget build(BuildContext context) => TriggerBuilder(
+  Widget build(BuildContext context) => TriggerBuilder<UserModel>(
         model: model,
-        builder: (context, model, data) {
-          return MaterialApp(
-            title: 'Flutter\'s Clothing',
-            theme: ThemeData(
-              primarySwatch: Colors.blue,
-              primaryColor: Color.fromARGB(255, 4, 125, 141),
-            ),
-            debugShowCheckedModeBanner: false,
-            home: HomeScreen(),
-          );
-        },
+        builder: (context, model, data) => MaterialApp(
+          title: 'Flutter\'s Clothing',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+            primaryColor: Color.fromARGB(255, 4, 125, 141),
+          ),
+          debugShowCheckedModeBanner: false,
+          home: HomeScreen(),
+        ),
       );
 }

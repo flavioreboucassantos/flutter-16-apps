@@ -1,12 +1,15 @@
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/classes/trigger_map.dart';
+import 'package:loja_virtual/datas/cart_product.dart';
 import 'package:loja_virtual/datas/product_data.dart';
-import 'package:loja_virtual/models/cart_product_model.dart';
-import 'package:loja_virtual/widgets/add_cart_button.dart';
-import 'package:loja_virtual/widgets/clothes_sizes.dart';
+import 'package:loja_virtual/models/cart_model.dart';
+import 'package:loja_virtual/screens/cart_screen.dart';
+import 'package:loja_virtual/screens/login_screen.dart';
 
 class ProductScreen extends StatelessWidget {
+  final CartModel cartModel = TriggerMap.singleton<CartModel>();
+  final TriggerMap cartProductModel = TriggerMap.instance('CartProductModel');
   final ProductData productData;
 
   ProductScreen(this.productData);
@@ -15,7 +18,7 @@ class ProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color primaryColor = Theme.of(context).primaryColor;
 
-    TriggerMap.singleton<CartProductModel>(CartProductModel());
+    cartProductModel.map.clear();
 
     return Scaffold(
       appBar: AppBar(
@@ -67,11 +70,115 @@ class ProductScreen extends StatelessWidget {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                ClothesSizes(productData.sizes),
+                TriggerBuilder<TriggerMap>(
+                  model: cartProductModel,
+                  builder: (context, model, data) {
+                    final Color primaryColor = Theme.of(context).primaryColor;
+
+                    return SizedBox(
+                      height: 34.0,
+                      child: GridView(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 4.0,
+                        ),
+                        scrollDirection: Axis.horizontal,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 1,
+                          mainAxisSpacing: 8.0,
+                          childAspectRatio: 0.5,
+                        ),
+                        children: productData.sizes
+                            .map(
+                              (size) => GestureDetector(
+                                onTap: () {
+                                  model.setKey('size', size);
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.all(
+                                      Radius.circular(
+                                        4.0,
+                                      ),
+                                    ),
+                                    border: Border.all(
+                                      color: model.map['size'] == size
+                                          ? primaryColor
+                                          : Colors.grey[500],
+                                      width: 3.0,
+                                    ),
+                                  ),
+                                  width: 50.0,
+                                  alignment: Alignment.center,
+                                  child: Text(size),
+                                ),
+                              ),
+                            )
+                            .toList(),
+                      ),
+                    );
+                  },
+                ),
                 SizedBox(
                   height: 16.0,
                 ),
-                AddCartButton(productData),
+                TriggerBuilder<TriggerMap>(
+                  model: cartProductModel,
+                  rebuildOnTrigger: () {
+                    return cartProductModel.map['setted'] == null;
+                  },
+                  builder: (context, model, data) {
+                    if (model.map['size'] != null) model.map['setted'] = true;
+
+                    return SizedBox(
+                      height: 44.0,
+                      child: ElevatedButton(
+                        onPressed: model.map['setted'] != null
+                            ? () {
+                                if (cartModel.user.isLoggedIn()) {
+                                  CartProduct cartProduct = CartProduct();
+                                  cartProduct.size = model.map['size'];
+                                  cartProduct.quantity = 1;
+                                  cartProduct.pid = productData.id;
+                                  cartProduct.category = productData.category;
+
+                                  cartModel.addCartItem(cartProduct);
+
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => CartScreen(),
+                                    ),
+                                  );
+                                } else {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => LoginScreen(),
+                                    ),
+                                  );
+                                }
+                              }
+                            : null,
+                        child: Text(
+                          cartModel.user.isLoggedIn()
+                              ? 'Adicionar ao Carrinho'
+                              : 'Entre para Comprar',
+                          style: TextStyle(
+                            fontSize: 18.0,
+                          ),
+                        ),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith(
+                            (Set<MaterialState> states) {
+                              if (states.contains(MaterialState.disabled)) {
+                                return Colors.grey;
+                              }
+                              return Theme.of(context).primaryColor;
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
                 SizedBox(
                   height: 16.0,
                 ),

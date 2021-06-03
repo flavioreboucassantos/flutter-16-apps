@@ -10,6 +10,8 @@ import 'package:loja_virtual/widgets/ship_card.dart';
 import 'login_screen.dart';
 
 class CartScreen extends StatelessWidget {
+  final CartModel cartModel = TriggerMap.singleton<CartModel>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,6 +23,7 @@ class CartScreen extends StatelessWidget {
             padding: EdgeInsets.only(right: 8.0),
             alignment: Alignment.center,
             child: TriggerBuilder<CartModel>(
+              model: cartModel,
               keyBuilder: 'length',
               builder: (context, model, data) {
                 int p = model.products.length;
@@ -36,6 +39,7 @@ class CartScreen extends StatelessWidget {
         ],
       ),
       body: TriggerBuilder<CartModel>(
+        model: cartModel,
         keyBuilder: 'body',
         builder: (context, model, data) {
           bool isLoggedIn = TriggerMap.singleton<UserModel>().isLoggedIn();
@@ -107,6 +111,7 @@ class CartScreen extends StatelessWidget {
                 children: model.products
                     .map(
                       (cartProduct) => TriggerBuilder<CartModel>(
+                        model: cartModel,
                         keyBuilder: cartProduct.cid,
                         builder: (context, model, data) => cartProductTile(
                           context,
@@ -120,6 +125,7 @@ class CartScreen extends StatelessWidget {
               DiscountCard(),
               ShipCard(),
               TriggerBuilder<CartModel>(
+                model: cartModel,
                 keyBuilder: 'prices',
                 builder: (context, model, data) => cartPrices(
                   context,

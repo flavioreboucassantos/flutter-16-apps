@@ -26,7 +26,7 @@ class UserModel extends TriggerMap {
     @required VoidCallback onFail,
   }) {
     isLoading = true;
-    triggerEvent();
+    notifyListeners();
 
     _auth
         .createUserWithEmailAndPassword(
@@ -40,13 +40,13 @@ class UserModel extends TriggerMap {
 
       onSuccess();
       isLoading = false;
-      triggerEvent();
+      notifyListeners();
 
       cartModel.reset();
     }).catchError((e) {
       onFail();
       isLoading = false;
-      triggerEvent();
+      notifyListeners();
     });
   }
 
@@ -57,7 +57,7 @@ class UserModel extends TriggerMap {
     @required VoidCallback onFail,
   }) async {
     isLoading = true;
-    triggerEvent();
+    notifyListeners();
 
     _auth
         .signInWithEmailAndPassword(email: email, password: pass)
@@ -68,13 +68,13 @@ class UserModel extends TriggerMap {
 
       onSuccess();
       isLoading = false;
-      triggerEvent();
+      notifyListeners();
 
       cartModel.reset();
     }).catchError((e) {
       onFail();
       isLoading = false;
-      triggerEvent();
+      notifyListeners();
     });
   }
 
@@ -84,7 +84,7 @@ class UserModel extends TriggerMap {
     userData = Map();
     firebaseUser = null;
 
-    triggerEvent();
+    notifyListeners();
 
     cartModel.reset();
   }
@@ -116,6 +116,6 @@ class UserModel extends TriggerMap {
         userData = docUser.data();
       }
     }
-    triggerEvent();
+    notifyListeners();
   }
 }

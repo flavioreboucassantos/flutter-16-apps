@@ -32,7 +32,7 @@ class CartModel extends TriggerMap {
     products = query.docs.map((doc) => CartProduct.fromDocument(doc)).toList();
 
     isLoading = false;
-    triggerEvent(['length', 'body']);
+    notifyListeners(['length', 'body']);
   }
 
   void reset() {
@@ -55,7 +55,7 @@ class CartModel extends TriggerMap {
       products.add(cartProduct);
 
       isLoading = false;
-      triggerEvent(['length', 'body']);
+      notifyListeners(['length', 'body']);
     });
   }
 
@@ -69,7 +69,7 @@ class CartModel extends TriggerMap {
 
     products.remove(cartProduct);
 
-    triggerEvent(['length', 'body']);
+    notifyListeners(['length', 'body']);
   }
 
   void decProduct(CartProduct cartProduct) {
@@ -82,7 +82,7 @@ class CartModel extends TriggerMap {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    triggerEvent([cartProduct.cid, 'prices']);
+    notifyListeners([cartProduct.cid, 'prices']);
   }
 
   void incProduct(CartProduct cartProduct) {
@@ -95,18 +95,18 @@ class CartModel extends TriggerMap {
         .doc(cartProduct.cid)
         .update({'quantity': cartProduct.quantity});
 
-    triggerEvent([cartProduct.cid, 'prices']);
+    notifyListeners([cartProduct.cid, 'prices']);
   }
 
   void setCoupon(String couponCode, int discountPercentage) {
     this.couponCode = couponCode;
     this.discountPercentage = discountPercentage;
 
-    triggerEvent(['prices']);
+    notifyListeners(['prices']);
   }
 
   void updatePrices() {
-    triggerEvent(['prices']);
+    notifyListeners(['prices']);
   }
 
   void updateProductsPrice() {
@@ -132,7 +132,7 @@ class CartModel extends TriggerMap {
     if (products.length == 0) return null;
 
     isLoading = true;
-    triggerEvent(['body']);
+    notifyListeners(['body']);
 
     updateProductsPrice();
     double productsPrice = getProductsPrice();
@@ -172,7 +172,7 @@ class CartModel extends TriggerMap {
     discountPercentage = 0;
 
     isLoading = false;
-    triggerEvent(['length', 'body']);
+    notifyListeners(['length', 'body']);
 
     return refOrder.id;
   }
