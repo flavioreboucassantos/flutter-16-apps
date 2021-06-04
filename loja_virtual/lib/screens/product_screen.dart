@@ -32,7 +32,7 @@ class ProductScreen extends StatelessWidget {
             aspectRatio: 0.9,
             child: Carousel(
               images:
-                  productData.images.map((url) => NetworkImage(url)).toList(),
+                  productData.images.map((url) => NetworkImage(url)).toList(growable: false),
               dotSize: 4.0,
               dotSpacing: 15.0,
               dotBgColor: Colors.transparent,
@@ -114,7 +114,7 @@ class ProductScreen extends StatelessWidget {
                                 ),
                               ),
                             )
-                            .toList(),
+                            .toList(growable: false),
                       ),
                     );
                   },

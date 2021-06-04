@@ -36,7 +36,10 @@ class HomeTab extends StatelessWidget {
               ),
             ),
             FutureBuilder<QuerySnapshot>(
-              future: FirebaseFirestore.instance.collection('home').orderBy('pos').get(),
+              future: FirebaseFirestore.instance
+                  .collection('home')
+                  .orderBy('pos')
+                  .get(),
               builder: (context, snapshot) {
                 if (!snapshot.hasData)
                   return SliverToBoxAdapter(
@@ -54,18 +57,22 @@ class HomeTab extends StatelessWidget {
                     mainAxisSpacing: 1.0,
                     crossAxisSpacing: 1.0,
                     staggeredTiles: snapshot.data.docs
-                        .map((doc) => StaggeredTile.count(
-                              doc.data()['x'],
-                              (doc.data()['y'] as int).toDouble(),
-                            ))
-                        .toList(),
+                        .map(
+                          (doc) => StaggeredTile.count(
+                            doc.data()['x'],
+                            doc.data()['y'].toDouble(),
+                          ),
+                        )
+                        .toList(growable: false),
                     children: snapshot.data.docs
-                        .map((doc) => FadeInImage.memoryNetwork(
-                              placeholder: kTransparentImage,
-                              image: doc.data()['image'],
-                              fit: BoxFit.cover,
-                            ))
-                        .toList(),
+                        .map(
+                          (doc) => FadeInImage.memoryNetwork(
+                            placeholder: kTransparentImage,
+                            image: doc.data()['image'],
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                        .toList(growable: false),
                   );
               },
             ),

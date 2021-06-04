@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/cart_model.dart';
+import 'package:loja_virtual/screens/order_screen.dart';
 import 'package:loja_virtual/tiles/cart_product_tile.dart';
-import 'package:loja_virtual/widgets/cart_prices.dart';
+import 'package:loja_virtual/widgets/cart_price.dart';
 import 'package:loja_virtual/widgets/discount_card.dart';
 import 'package:loja_virtual/widgets/ship_card.dart';
 
@@ -109,29 +110,27 @@ class CartScreen extends StatelessWidget {
               Column(
                 children: model.products
                     .map(
-                      (cartProduct) => TriggerBuilder<CartModel>(
-                        model: cartModel,
-                        keyBuilder: cartProduct.cid,
-                        builder: (context, model, data) => cartProductTile(
-                          context,
-                          model,
-                          cartProduct,
+                      (cartProduct) => Card(
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
                         ),
+                        child: CartProductTile(cartModel, cartProduct),
                       ),
                     )
                     .toList(growable: false),
               ),
               DiscountCard(),
               ShipCard(),
-              TriggerBuilder<CartModel>(
-                model: cartModel,
-                keyBuilder: 'prices',
-                builder: (context, model, data) => cartPrices(
-                  context,
-                  model,
-                  data,
-                ),
-              ),
+              CartPrice(cartModel, () async {
+                String orderId = await model.finishOrder();
+                if (orderId != null)
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => OrderScreen(orderId),
+                    ),
+                  );
+              }),
             ],
           );
         },

@@ -17,7 +17,7 @@ class ProductsTab extends StatelessWidget {
             children: ListTile.divideTiles(
               tiles: snapshot.data.docs.map((doc) => CategoryTile(doc)),
               color: Colors.grey[500],
-            ).toList(),
+            ).toList(growable: false),
           );
       },
     );

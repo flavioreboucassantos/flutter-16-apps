@@ -142,7 +142,7 @@ class CartModel extends TriggerModel {
     DocumentReference refOrder =
         await FirebaseFirestore.instance.collection('orders').add({
       'clientId': user.firebaseUser.uid,
-      'products': products.map((cartProduct) => cartProduct.toMap()).toList(),
+      'products': products.map((cartProduct) => cartProduct.toMap()).toList(growable: false),
       'shipPrice': shipPrice,
       'productsPrice': productsPrice,
       'discount': discount,
