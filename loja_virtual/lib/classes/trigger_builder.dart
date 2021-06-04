@@ -14,7 +14,7 @@ abstract class TriggerModel {
   static Map<Type, List<_TriggerBuilderState>> _typeNullKeyBuilders =
       Map<Type, List<_TriggerBuilderState>>();
 
-  static List<TriggerModel> _singletons = [];
+  static List<TriggerModel> _singletons = <TriggerModel>[];
 
   List<String> _keys;
   List<_TriggerBuilderState> _builders;
@@ -26,9 +26,9 @@ abstract class TriggerModel {
       _builders = _typeBuilders[this.runtimeType];
       _nullKeyBuilders = _typeNullKeyBuilders[this.runtimeType];
     } else {
-      List<String> keys = [];
-      List<_TriggerBuilderState> builders = [];
-      List<_TriggerBuilderState> nullKeyBuilders = [];
+      List<String> keys = <String>[];
+      List<_TriggerBuilderState> builders = <_TriggerBuilderState>[];
+      List<_TriggerBuilderState> nullKeyBuilders = <_TriggerBuilderState>[];
       _typeKeys[this.runtimeType] = keys;
       _typeBuilders[this.runtimeType] = builders;
       _typeNullKeyBuilders[this.runtimeType] = nullKeyBuilders;
@@ -132,7 +132,8 @@ class TriggerMap extends TriggerModel {
   static Map<String, TriggerMap> _instances = Map<String, TriggerMap>();
 
   final _keysFunctions = Map<String, void Function(Map<String, dynamic>)>();
-  final List<void Function(Map<String, dynamic>)> _nullKeyFunctions = [];
+  final List<void Function(Map<String, dynamic>)> _nullKeyFunctions =
+      <void Function(Map<String, dynamic>)>[];
 
   final Map<String, dynamic> map = Map<String, dynamic>();
 
