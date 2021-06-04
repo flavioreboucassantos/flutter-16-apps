@@ -324,9 +324,8 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
     @required this.builder,
   }) : super(key: key);
 
-  StateBuilder<E> _getBuilder<E extends TriggerModel>() {
-    return builder as StateBuilder<E>;
-  }
+  Widget _build(BuildContext context, T model, Map<String, dynamic> data) =>
+      builder(context, model, data);
 
   @override
   _TriggerBuilderState createState() => _TriggerBuilderState<T>(model);
@@ -383,6 +382,5 @@ class _TriggerBuilderState<T extends TriggerModel>
   }
 
   @override
-  Widget build(BuildContext context) =>
-      widget._getBuilder<T>()(context, model, data);
+  Widget build(BuildContext context) => widget._build(context, model, data);
 }
