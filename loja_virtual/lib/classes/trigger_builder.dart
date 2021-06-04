@@ -11,30 +11,30 @@ abstract class TriggerModel {
   static Map<Type, List<String>> _typeKeys = Map<Type, List<String>>();
   static Map<Type, List<_TriggerBuilderState>> _typeBuilders =
       Map<Type, List<_TriggerBuilderState>>();
-  static Map<Type, List<_TriggerBuilderState>> _typeAnyEventBuilders =
+  static Map<Type, List<_TriggerBuilderState>> _typeNullKeyBuilders =
       Map<Type, List<_TriggerBuilderState>>();
 
   static List<TriggerModel> _singletons = [];
 
   List<String> _keys;
   List<_TriggerBuilderState> _builders;
-  List<_TriggerBuilderState> _anyEventBuilders;
+  List<_TriggerBuilderState> _nullKeyBuilders;
 
   TriggerModel() {
     if (_typeKeys.containsKey(this.runtimeType)) {
       _keys = _typeKeys[this.runtimeType];
       _builders = _typeBuilders[this.runtimeType];
-      _anyEventBuilders = _typeAnyEventBuilders[this.runtimeType];
+      _nullKeyBuilders = _typeNullKeyBuilders[this.runtimeType];
     } else {
       List<String> keys = [];
       List<_TriggerBuilderState> builders = [];
-      List<_TriggerBuilderState> anyEventBuilders = [];
+      List<_TriggerBuilderState> nullKeyBuilders = [];
       _typeKeys[this.runtimeType] = keys;
       _typeBuilders[this.runtimeType] = builders;
-      _typeAnyEventBuilders[this.runtimeType] = anyEventBuilders;
+      _typeNullKeyBuilders[this.runtimeType] = nullKeyBuilders;
       _keys = keys;
       _builders = builders;
-      _anyEventBuilders = anyEventBuilders;
+      _nullKeyBuilders = nullKeyBuilders;
     }
   }
 
@@ -62,8 +62,8 @@ abstract class TriggerModel {
 
   void _subscribe(String keyBuilder, _TriggerBuilderState builder) {
     if (keyBuilder == null) {
-      if (!_anyEventBuilders.contains(builder)) {
-        _anyEventBuilders.add(builder);
+      if (!_nullKeyBuilders.contains(builder)) {
+        _nullKeyBuilders.add(builder);
       }
     } else {
       _keys.add(keyBuilder);
@@ -72,7 +72,7 @@ abstract class TriggerModel {
   }
 
   void _unsubscribe(_TriggerBuilderState builder) {
-    _anyEventBuilders.remove(builder);
+    _nullKeyBuilders.remove(builder);
     final int i = _builders.indexOf(builder);
     if (i != -1) {
       _keys.removeAt(i);
@@ -97,9 +97,9 @@ abstract class TriggerModel {
   }
 
   @mustCallSuper
-  void _triggerAny(Map<String, dynamic> other) {
-    for (var i = 0; i < _anyEventBuilders.length; i++)
-      _anyEventBuilders[i]._triggerBuilder(other);
+  void _triggerNullKey(Map<String, dynamic> other) {
+    for (var i = 0; i < _nullKeyBuilders.length; i++)
+      _nullKeyBuilders[i]._triggerBuilder(other);
   }
 
   /// Just trigger the subscribed builders associated with the [keys] parameter
@@ -114,7 +114,7 @@ abstract class TriggerModel {
         ),
       );
 
-    _triggerAny(
+    _triggerNullKey(
       keys == null
           ? {}
           : Map.fromIterables(
@@ -132,7 +132,7 @@ class TriggerMap extends TriggerModel {
   static Map<String, TriggerMap> _instances = Map<String, TriggerMap>();
 
   final _keysFunctions = Map<String, void Function(Map<String, dynamic>)>();
-  final List<void Function(Map<String, dynamic>)> _anyEventFunctions = [];
+  final List<void Function(Map<String, dynamic>)> _nullKeyFunctions = [];
 
   final Map<String, dynamic> map = Map<String, dynamic>();
 
@@ -172,11 +172,11 @@ class TriggerMap extends TriggerModel {
   }
 
   @override
-  void _triggerAny(Map<String, dynamic> other) {
-    for (var i = 0; i < _anyEventFunctions.length; i++)
-      _anyEventFunctions[i](other);
+  void _triggerNullKey(Map<String, dynamic> other) {
+    for (var i = 0; i < _nullKeyFunctions.length; i++)
+      _nullKeyFunctions[i](other);
 
-    super._triggerAny(other);
+    super._triggerNullKey(other);
   }
 
   /// Subscribes a [function] to be triggered if the [key] parameter is
@@ -195,7 +195,7 @@ class TriggerMap extends TriggerModel {
   /// was updated.
   void subscribe(void Function(Map<String, dynamic>) function, [String key]) {
     if (key == null)
-      _anyEventFunctions.add(function);
+      _nullKeyFunctions.add(function);
     else
       _keysFunctions[key] = function;
   }
@@ -207,7 +207,7 @@ class TriggerMap extends TriggerModel {
   /// key/function pair from the list of subscribers.
   void unsubscribe({void Function(Map<String, dynamic>) function, String key}) {
     if (function != null) {
-      _anyEventFunctions.remove(function);
+      _nullKeyFunctions.remove(function);
       _keysFunctions.removeWhere((key, value) => value == function);
     }
     if (key != null) {
@@ -224,7 +224,7 @@ class TriggerMap extends TriggerModel {
 
     _triggerByKeys(other.keys.toList(growable: false), other);
 
-    _triggerAny(other);
+    _triggerNullKey(other);
   }
 
   /// Adds all key/value pairs of [other] to the map of the [key].
@@ -236,7 +236,7 @@ class TriggerMap extends TriggerModel {
 
     _triggerByPair(key, other);
 
-    _triggerAny({key: other});
+    _triggerNullKey({key: other});
   }
 
   /// Defines a [key]/[value] pair to the internal map.
@@ -245,7 +245,7 @@ class TriggerMap extends TriggerModel {
 
     _triggerByPair(key, value);
 
-    _triggerAny({key: value});
+    _triggerNullKey({key: value});
   }
 
   /// Just trigger the subscribed functions and builders associated with
@@ -261,7 +261,7 @@ class TriggerMap extends TriggerModel {
         ),
       );
 
-    _triggerAny(
+    _triggerNullKey(
       keys == null
           ? {}
           : Map.fromIterables(
