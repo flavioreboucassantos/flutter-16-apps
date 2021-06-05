@@ -276,8 +276,8 @@ class TriggerMap extends TriggerModel {
   }
 }
 
-/// An optional value that determines whether the Widget will rebuild when
-/// the model changes.
+/// An optional method that the return determines whether the Widget will
+/// rebuild when the model changes.
 typedef bool RebuildOnChange();
 
 /// Builds a child for a [_TriggerBuilderState].
@@ -312,8 +312,8 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
   /// is updated or triggered.
   final String keyBuilder;
 
-  /// An optional value that determines whether the Widget will rebuild when
-  /// the model changes.
+  /// An optional method that the return determines whether the Widget will
+  /// rebuild when the model changes.
   final RebuildOnChange rebuildOnChange;
 
   /// Builds a Widget when the Widget is first created and whenever
