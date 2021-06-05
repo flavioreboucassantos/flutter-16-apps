@@ -39,6 +39,7 @@ abstract class TriggerModel {
   }
 
   /// Provides a [TriggerModel] instance of type [T] from the [model] parameter.
+  ///
   /// If an instance of type [T] is already been provided,
   /// it will be overwritten.
   ///
@@ -275,8 +276,8 @@ class TriggerMap extends TriggerModel {
   }
 }
 
-/// An optional function that determines whether the Widget will rebuild when
-/// the event is triggered.
+/// An optional value that determines whether the Widget will rebuild when
+/// the model changes.
 typedef bool RebuildOnChange();
 
 /// Builds a child for a [_TriggerBuilderState].
@@ -298,6 +299,9 @@ typedef Widget StateBuilder<T extends TriggerModel>(
 ///
 /// If the [keyBuilder] argument is null, the [builder] will trigger
 /// from [any event], always after the others.
+///
+/// If the [builder] argument is null, it is necessary to at least override
+/// the [build] method.
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
@@ -321,10 +325,11 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
     this.model,
     this.keyBuilder,
     this.rebuildOnChange,
-    @required this.builder,
+    this.builder,
   }) : super(key: key);
 
-  Widget _build(BuildContext context, T model, Map<String, dynamic> data) =>
+  @protected
+  Widget build(BuildContext context, T model, Map<String, dynamic> data) =>
       builder(context, model, data);
 
   @override
@@ -382,5 +387,5 @@ class _TriggerBuilderState<T extends TriggerModel>
   }
 
   @override
-  Widget build(BuildContext context) => widget._build(context, model, data);
+  Widget build(BuildContext context) => widget.build(context, model, data);
 }
