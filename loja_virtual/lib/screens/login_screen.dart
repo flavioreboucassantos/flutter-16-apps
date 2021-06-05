@@ -5,35 +5,31 @@ import 'package:email_validator/email_validator.dart';
 import 'package:loja_virtual/screens/signup_screen.dart';
 
 class LoginScreen extends StatelessWidget {
-  final UserModel model = TriggerModel.singleton<UserModel>();
-
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
 
-  BuildContext _context;
   final _formKey = GlobalKey<FormState>();
-
-  void _onSuccess() {
-    Navigator.of(_context).pop();
-  }
-
-  void _onFail() {
-    ScaffoldMessenger.of(_context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Falha ao entrar!',
-        ),
-        backgroundColor: Colors.redAccent,
-        duration: Duration(
-          seconds: 2,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    _context = context;
+    void _onSuccess() {
+      Navigator.of(context).pop();
+    }
+
+    void _onFail() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Falha ao entrar!',
+          ),
+          backgroundColor: Colors.redAccent,
+          duration: Duration(
+            seconds: 2,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Entrar'),
@@ -56,7 +52,7 @@ class LoginScreen extends StatelessWidget {
               )),
         ],
       ),
-      body: model.isLoading
+      body: UserModel.model.isLoading
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -119,7 +115,8 @@ class LoginScreen extends StatelessWidget {
                             ),
                           );
                         } else {
-                          model.recoverPass(_emailController.text.trim());
+                          UserModel.model
+                              .recoverPass(_emailController.text.trim());
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
@@ -150,7 +147,7 @@ class LoginScreen extends StatelessWidget {
                     child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState.validate()) {
-                          model.signIn(
+                          UserModel.model.signIn(
                             email: _emailController.text.trim(),
                             pass: _passController.text.trim(),
                             onSuccess: _onSuccess,

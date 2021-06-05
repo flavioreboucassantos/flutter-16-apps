@@ -4,8 +4,6 @@ import 'package:loja_virtual/models/cart_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DiscountCard extends StatelessWidget {
-  final CartModel model = TriggerModel.singleton<CartModel>();
-
   @override
   Widget build(BuildContext context) {
     Color primaryColor = Theme.of(context).primaryColor;
@@ -32,7 +30,7 @@ class DiscountCard extends StatelessWidget {
                 border: OutlineInputBorder(),
                 hintText: 'Digite seu cupom',
               ),
-              initialValue: model.couponCode ?? '',
+              initialValue: CartModel.model.couponCode ?? '',
               onFieldSubmitted: (text) {
                 FirebaseFirestore.instance
                     .collection('coupons')
@@ -41,7 +39,7 @@ class DiscountCard extends StatelessWidget {
                     .then((documentSnapshot) {
                   if (documentSnapshot.data() != null) {
                     int discountPercentage = documentSnapshot.data()['percent'];
-                    model.setCoupon(text, discountPercentage);
+                    CartModel.model.setCoupon(text, discountPercentage);
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -52,7 +50,7 @@ class DiscountCard extends StatelessWidget {
                       ),
                     );
                   } else {
-                    model.setCoupon(null, 0);
+                    CartModel.model.setCoupon(null, 0);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(

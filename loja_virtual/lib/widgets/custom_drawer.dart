@@ -5,8 +5,6 @@ import 'package:loja_virtual/screens/login_screen.dart';
 import 'package:loja_virtual/tiles/drawer_tile.dart';
 
 class CustomDrawer extends StatelessWidget {
-  final UserModel model = TriggerModel.singleton<UserModel>();
-
   final PageController _pageController;
 
   CustomDrawer(this._pageController);
@@ -57,7 +55,7 @@ class CustomDrawer extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Olá, ${model.isLoggedIn() ? model.userData['name'] : ''}',
+                            'Olá, ${UserModel.model.isLoggedIn() ? UserModel.model.userData['name'] : ''}',
                             style: TextStyle(
                               fontSize: 18.0,
                               fontWeight: FontWeight.bold,
@@ -65,7 +63,7 @@ class CustomDrawer extends StatelessWidget {
                           ),
                           GestureDetector(
                             child: Text(
-                              model.isLoggedIn()
+                              UserModel.model.isLoggedIn()
                                   ? 'Sair'
                                   : 'Entre ou cadastre-se >',
                               style: TextStyle(
@@ -75,8 +73,8 @@ class CustomDrawer extends StatelessWidget {
                               ),
                             ),
                             onTap: () {
-                              if (model.isLoggedIn())
-                                model.signOut();
+                              if (UserModel.model.isLoggedIn())
+                                UserModel.model.signOut();
                               else
                                 Navigator.of(context).push(
                                   MaterialPageRoute(

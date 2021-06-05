@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'cart_model.dart';
 
 class UserModel extends TriggerModel {
+  static UserModel model;
+
   FirebaseAuth _auth = FirebaseAuth.instance;
   User firebaseUser;
 
@@ -16,7 +18,8 @@ class UserModel extends TriggerModel {
 
   UserModel() {
     _loadCurrentUser();
-    cartModel = TriggerModel.singleton<CartModel>(CartModel(this));
+    CartModel.model =
+        cartModel = TriggerModel.singleton<CartModel>(CartModel(this));
   }
 
   void signUp({

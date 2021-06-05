@@ -4,58 +4,54 @@ import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/user_model.dart';
 
 class SignUpScreen extends StatelessWidget {
-  final UserModel model = TriggerModel.singleton<UserModel>();
-
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passController = TextEditingController();
   final _addressController = TextEditingController();
 
-  BuildContext _context;
   final _formKey = GlobalKey<FormState>();
-
-  void _onSuccess() {
-    ScaffoldMessenger.of(_context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Usuário criado com sucesso!',
-        ),
-        backgroundColor: Theme.of(_context).primaryColor,
-        duration: Duration(
-          seconds: 2,
-        ),
-      ),
-    );
-    Future.delayed(
-      Duration(
-        seconds: 1,
-      ),
-    ).then((value) => Navigator.of(_context).pop());
-  }
-
-  void _onFail() {
-    ScaffoldMessenger.of(_context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Falha ao criar usuário!',
-        ),
-        backgroundColor: Colors.redAccent,
-        duration: Duration(
-          seconds: 2,
-        ),
-      ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
-    _context = context;
+    void _onSuccess() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Usuário criado com sucesso!',
+          ),
+          backgroundColor: Theme.of(context).primaryColor,
+          duration: Duration(
+            seconds: 2,
+          ),
+        ),
+      );
+      Future.delayed(
+        Duration(
+          seconds: 1,
+        ),
+      ).then((value) => Navigator.of(context).pop());
+    }
+
+    void _onFail() {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Falha ao criar usuário!',
+          ),
+          backgroundColor: Colors.redAccent,
+          duration: Duration(
+            seconds: 2,
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Criar Conta'),
         centerTitle: true,
       ),
-      body: model.isLoading
+      body: UserModel.model.isLoading
           ? Center(
               child: CircularProgressIndicator(),
             )
@@ -122,7 +118,7 @@ class SignUpScreen extends StatelessWidget {
                             'email': _emailController.text.trim(),
                             'address': _addressController.text.trim()
                           };
-                          model.signUp(
+                          UserModel.model.signUp(
                             userData: userData,
                             pass: _passController.text.trim(),
                             onSuccess: _onSuccess,

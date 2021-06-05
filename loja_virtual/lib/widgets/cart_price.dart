@@ -3,9 +3,9 @@ import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/cart_model.dart';
 
 class CartPrice extends TriggerBuilder<CartModel> {
-  CartPrice(cartModel, VoidCallback buy)
+  CartPrice(VoidCallback buy)
       : super(
-          model: cartModel,
+          model: CartModel.model,
           keyBuilder: 'prices',
           builder: (context, model, data) {
             Color primaryColor = Theme.of(context).primaryColor;

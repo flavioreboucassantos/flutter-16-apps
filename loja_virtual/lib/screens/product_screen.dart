@@ -8,7 +8,6 @@ import 'package:loja_virtual/screens/cart_screen.dart';
 import 'package:loja_virtual/screens/login_screen.dart';
 
 class ProductScreen extends StatelessWidget {
-  final CartModel cartModel = TriggerModel.singleton<CartModel>();
   final TriggerMap cartProductModel = TriggerMap.instance('CartProductModel');
 
   final ProductData productData;
@@ -133,14 +132,14 @@ class ProductScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: model.map['setted'] != null
                             ? () {
-                                if (cartModel.user.isLoggedIn()) {
+                                if (CartModel.model.user.isLoggedIn()) {
                                   CartProduct cartProduct = CartProduct();
                                   cartProduct.size = model.map['size'];
                                   cartProduct.quantity = 1;
                                   cartProduct.pid = productData.id;
                                   cartProduct.category = productData.category;
 
-                                  cartModel.addCartItem(cartProduct);
+                                  CartModel.model.addCartItem(cartProduct);
 
                                   Navigator.of(context).push(
                                     MaterialPageRoute(
@@ -157,7 +156,7 @@ class ProductScreen extends StatelessWidget {
                               }
                             : null,
                         child: Text(
-                          cartModel.user.isLoggedIn()
+                          CartModel.model.user.isLoggedIn()
                               ? 'Adicionar ao Carrinho'
                               : 'Entre para Comprar',
                           style: TextStyle(

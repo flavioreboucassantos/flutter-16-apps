@@ -10,8 +10,6 @@ import 'package:loja_virtual/widgets/ship_card.dart';
 import 'login_screen.dart';
 
 class CartScreen extends StatelessWidget {
-  final CartModel cartModel = TriggerModel.singleton<CartModel>();
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +21,7 @@ class CartScreen extends StatelessWidget {
             padding: EdgeInsets.only(right: 8.0),
             alignment: Alignment.center,
             child: TriggerBuilder<CartModel>(
-              model: cartModel,
+              model: CartModel.model,
               keyBuilder: 'length',
               builder: (context, model, data) {
                 int p = model.products.length;
@@ -39,10 +37,10 @@ class CartScreen extends StatelessWidget {
         ],
       ),
       body: TriggerBuilder<CartModel>(
-        model: cartModel,
+        model: CartModel.model,
         keyBuilder: 'body',
         builder: (context, model, data) {
-          bool isLoggedIn = cartModel.user.isLoggedIn();
+          bool isLoggedIn = CartModel.model.user.isLoggedIn();
           Color primaryColor = Theme.of(context).primaryColor;
 
           if (model.isLoading && isLoggedIn)
@@ -115,14 +113,14 @@ class CartScreen extends StatelessWidget {
                           horizontal: 8.0,
                           vertical: 4.0,
                         ),
-                        child: CartProductTile(cartModel, cartProduct),
+                        child: CartProductTile(cartProduct),
                       ),
                     )
                     .toList(growable: false),
               ),
               DiscountCard(),
               ShipCard(),
-              CartPrice(cartModel, () async {
+              CartPrice(() async {
                 String orderId = await model.finishOrder();
                 if (orderId != null)
                   Navigator.of(context).pushReplacement(

@@ -4,6 +4,8 @@ import 'package:loja_virtual/models/user_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CartModel extends TriggerModel {
+  static CartModel model;
+
   UserModel user;
 
   List<CartProduct> products = [];
@@ -142,7 +144,9 @@ class CartModel extends TriggerModel {
     DocumentReference refOrder =
         await FirebaseFirestore.instance.collection('orders').add({
       'clientId': user.firebaseUser.uid,
-      'products': products.map((cartProduct) => cartProduct.toMap()).toList(growable: false),
+      'products': products
+          .map((cartProduct) => cartProduct.toMap())
+          .toList(growable: false),
       'shipPrice': shipPrice,
       'productsPrice': productsPrice,
       'discount': discount,

@@ -11,7 +11,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
-  final UserModel model = TriggerModel.singleton<UserModel>(UserModel());
+  final model =
+      UserModel.model = TriggerModel.singleton<UserModel>(UserModel());
 
   @override
   Widget build(BuildContext context) => TriggerBuilder<UserModel>(

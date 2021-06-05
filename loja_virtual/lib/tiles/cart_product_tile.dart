@@ -6,7 +6,15 @@ import 'package:loja_virtual/datas/product_data.dart';
 import 'package:loja_virtual/models/cart_model.dart';
 
 class CartProductTile extends TriggerBuilder<CartModel> {
-  static Widget _buildContent(
+  final CartProduct cartProduct;
+
+  CartProductTile(this.cartProduct)
+      : super(
+          model: CartModel.model,
+          keyBuilder: cartProduct.cid,
+        );
+
+  Widget _buildContent(
     BuildContext context,
     CartModel model,
     CartProduct cartProduct,
@@ -83,39 +91,35 @@ class CartProductTile extends TriggerBuilder<CartModel> {
     );
   }
 
-  CartProductTile(CartModel cartModel, CartProduct cartProduct)
-      : super(
-          model: cartModel,
-          keyBuilder: cartProduct.cid,
-          builder: (context, model, data) {
-            if (cartProduct.productData == null) {
-              model.productsToLoad++;
-              return FutureBuilder<DocumentSnapshot>(
-                future: FirebaseFirestore.instance
-                    .collection('products')
-                    .doc(cartProduct.category)
-                    .collection('items')
-                    .doc(cartProduct.pid)
-                    .get(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData) {
-                    cartProduct.productData =
-                        ProductData.fromDocument(snapshot.data);
+  @override
+  Widget build(
+      BuildContext context, CartModel model, Map<String, dynamic> data) {
+    if (cartProduct.productData == null) {
+      model.productsToLoad++;
+      return FutureBuilder<DocumentSnapshot>(
+        future: FirebaseFirestore.instance
+            .collection('products')
+            .doc(cartProduct.category)
+            .collection('items')
+            .doc(cartProduct.pid)
+            .get(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            cartProduct.productData = ProductData.fromDocument(snapshot.data);
 
-                    model.productsToLoad--;
-                    if (model.productsToLoad == 0) model.updatePrices();
+            model.productsToLoad--;
+            if (model.productsToLoad == 0) model.updatePrices();
 
-                    return _buildContent(context, model, cartProduct);
-                  } else
-                    return Container(
-                      height: 70.0,
-                      child: CircularProgressIndicator(),
-                      alignment: Alignment.center,
-                    );
-                },
-              );
-            }
             return _buildContent(context, model, cartProduct);
-          },
-        );
+          } else
+            return Container(
+              height: 70.0,
+              child: CircularProgressIndicator(),
+              alignment: Alignment.center,
+            );
+        },
+      );
+    }
+    return _buildContent(context, model, cartProduct); //
+  }
 }
