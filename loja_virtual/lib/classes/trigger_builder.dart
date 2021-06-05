@@ -126,26 +126,43 @@ abstract class TriggerModel {
   }
 }
 
+typedef void TriggerFunction(Map<String, dynamic> data);
+
 /// Trigger functions when updating keys at an internal Map<String, dynamic>
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerMap extends TriggerModel {
   static Map<String, TriggerMap> _instances = Map<String, TriggerMap>();
 
-  final _keysFunctions = Map<String, void Function(Map<String, dynamic>)>();
-  final List<void Function(Map<String, dynamic>)> _nullKeyFunctions =
-      <void Function(Map<String, dynamic>)>[];
+  static Map<Type, Map<String, TriggerFunction>> _typeKeysFunctions =
+      Map<Type, Map<String, TriggerFunction>>();
+  static Map<Type, List<TriggerFunction>> _typeNullKeyFunctions =
+      Map<Type, List<TriggerFunction>>();
+
+  Map<String, TriggerFunction> _keysFunctions;
+  List<TriggerFunction> _nullKeyFunctions;
 
   final Map<String, dynamic> map = Map<String, dynamic>();
 
   /// Initializes or retrieves a [TriggerMap] instance by [id] parameter.
-  static TriggerMap instance(String id) {
-    if (_instances[id] == null) {
-      final TriggerMap newInstance = TriggerMap();
-      _instances[id] = newInstance;
-      return newInstance;
+  ///
+  /// If the [id] is present, retrieves a [TriggerMap] instance.
+  ///
+  /// If the [id] is not present, initializes a [TriggerMap] instance and returns.
+  ///
+  /// If the [instance] parameter is not null, it overwrites the [id] and returns the same [instance].
+  static TriggerMap instance(String id, [TriggerMap instance]) {
+    if (instance == null) {
+      if (_instances[id] == null) {
+        final TriggerMap newInstance = TriggerMap();
+        _instances[id] = newInstance;
+        return newInstance;
+      }
+      return _instances[id];
+    } else {
+      _instances[id] = instance;
+      return instance;
     }
-    return _instances[id];
   }
 
   /// Removes a [TriggerMap] instance by [id] parameter, releasing it to store
@@ -154,9 +171,37 @@ class TriggerMap extends TriggerModel {
     _instances.remove(id);
   }
 
+  /// Adds all key/value pairs of [other] to the internal map.
+  ///
+  /// If a key of [other] is already in the internal map, its value
+  /// is overwritten.
+  ///
+  /// If the [trigger] parameter is false, no events will be triggered from
+  /// the constructor.
+  TriggerMap([Map<String, dynamic> other, bool trigger = true]) {
+    if (_typeKeysFunctions.containsKey(this.runtimeType)) {
+      _keysFunctions = _typeKeysFunctions[this.runtimeType];
+      _nullKeyFunctions = _typeNullKeyFunctions[this.runtimeType];
+    } else {
+      Map<String, TriggerFunction> keysFunctions =
+          Map<String, TriggerFunction>();
+      List<TriggerFunction> nullKeyFunctions = <TriggerFunction>[];
+      _typeKeysFunctions[this.runtimeType] = keysFunctions;
+      _typeNullKeyFunctions[this.runtimeType] = nullKeyFunctions;
+      _keysFunctions = keysFunctions;
+      _nullKeyFunctions = nullKeyFunctions;
+    }
+    if (other != null) {
+      if (trigger)
+        mergeAll(other);
+      else
+        map.addAll(other);
+    }
+  }
+
   @override
   void _triggerByPair(String key, dynamic value) {
-    void Function(Map<String, dynamic>) function = _keysFunctions[key];
+    TriggerFunction function = _keysFunctions[key];
     if (function != null) function({key: value});
 
     super._triggerByPair(key, value);
@@ -164,7 +209,7 @@ class TriggerMap extends TriggerModel {
 
   @override
   void _triggerByKeys(List<String> keys, Map<String, dynamic> other) {
-    void Function(Map<String, dynamic>) function;
+    TriggerFunction function;
     for (var i = 0; i < keys.length; i++) {
       function = _keysFunctions[keys[i]];
       if (function != null) function(other);
@@ -195,7 +240,7 @@ class TriggerMap extends TriggerModel {
   ///
   /// The [first parameter] of the [function] contains a map of what
   /// was updated.
-  void subscribe(void Function(Map<String, dynamic>) function, [String key]) {
+  void subscribe(TriggerFunction function, [String key]) {
     if (key == null)
       _nullKeyFunctions.add(function);
     else
@@ -207,7 +252,7 @@ class TriggerMap extends TriggerModel {
   ///
   /// If the [key] argument is not null, finds the [key] and removes the
   /// key/function pair from the list of subscribers.
-  void unsubscribe({void Function(Map<String, dynamic>) function, String key}) {
+  void unsubscribe({TriggerFunction function, String key}) {
     if (function != null) {
       _nullKeyFunctions.remove(function);
       _keysFunctions.removeWhere((key, value) => value == function);
@@ -277,8 +322,8 @@ class TriggerMap extends TriggerModel {
 }
 
 /// An optional method that the return determines whether the Widget will
-/// rebuild when the model changes.
-typedef bool RebuildOnChange();
+/// rebuild when the [model] changes.
+typedef bool RebuildOnChange<T extends TriggerModel>(T model);
 
 /// Builds a child for a [_TriggerBuilderState].
 typedef Widget StateBuilder<T extends TriggerModel>(
@@ -287,21 +332,7 @@ typedef Widget StateBuilder<T extends TriggerModel>(
   Map<String, dynamic> data,
 );
 
-/// If the [model] argument is null, finds a [TriggerModel] instance of
-/// type [T] provided.
-///
-/// If the [model] argument is not null and different from the previous,
-/// unsubscribes the previous and subscribe the other.
-///
-/// It is possible to construct different instances of [TriggerBuilder]
-/// using the same [keyBuilder] argument, triggering all the instances
-/// at the same time.
-///
-/// If the [keyBuilder] argument is null, the [builder] will trigger
-/// from [any event], always after the others.
-///
-/// If the [builder] argument is null, it is necessary to at least override
-/// the [build] method.
+/// Rebuilds the Widget whenever the [TriggerModel] changes.
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
@@ -313,13 +344,28 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
   final String keyBuilder;
 
   /// An optional method that the return determines whether the Widget will
-  /// rebuild when the model changes.
-  final RebuildOnChange rebuildOnChange;
+  /// rebuild when the [model] changes.
+  final RebuildOnChange<T> rebuildOnChange;
 
   /// Builds a Widget when the Widget is first created and whenever
   /// the [TriggerModel] changes if [rebuildOnChange] is null or returns `true`.
   final StateBuilder<T> builder;
 
+  /// If the [model] argument is null, finds a [TriggerModel] instance of
+  /// type [T] provided.
+  ///
+  /// If the [model] argument is not null and different from the previous,
+  /// unsubscribes the previous and subscribe the other.
+  ///
+  /// It is possible to construct different instances of [TriggerBuilder]
+  /// using the same [keyBuilder] argument, triggering all the instances
+  /// at the same time.
+  ///
+  /// If the [keyBuilder] argument is null, the [builder] will trigger
+  /// from [any event], always after the others.
+  ///
+  /// If the [builder] argument is null, it is necessary to at least override
+  /// the [build] method.
   const TriggerBuilder({
     Key key,
     this.model,
@@ -327,6 +373,11 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
     this.rebuildOnChange,
     this.builder,
   }) : super(key: key);
+
+  /// An optional method that the return determines whether the Widget will
+  /// rebuild when the [model] changes.
+  @protected
+  bool rebuild(T model) => rebuildOnChange == null || rebuildOnChange(model);
 
   @protected
   Widget build(BuildContext context, T model, Map<String, dynamic> data) =>
@@ -344,14 +395,14 @@ class _TriggerBuilderState<T extends TriggerModel>
   _TriggerBuilderState(this.model);
 
   void _triggerBuilder(Map<String, dynamic> other) {
-    if (widget.rebuildOnChange == null || widget.rebuildOnChange()) {
-      WidgetsBinding.instance.scheduleFrame();
+    if (widget.rebuild(model)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           data = other;
           setState(() {});
         }
       });
+      WidgetsBinding.instance.scheduleFrame();
     }
   }
 
@@ -365,16 +416,14 @@ class _TriggerBuilderState<T extends TriggerModel>
   @override
   void didUpdateWidget(TriggerBuilder oldWidget) {
     if (oldWidget.keyBuilder == widget.keyBuilder) {
-      if (widget.model != null &&
-          widget.model.runtimeType != model.runtimeType) {
+      if (widget.model != null && widget.model != model) {
         model._unsubscribe(this);
         model = widget.model;
         model._subscribe(widget.keyBuilder, this);
       }
     } else {
       model._unsubscribe(this);
-      if (widget.model != null && widget.model.runtimeType != model.runtimeType)
-        model = widget.model;
+      if (widget.model != null && widget.model != model) model = widget.model;
       model._subscribe(widget.keyBuilder, this);
     }
     super.didUpdateWidget(oldWidget);
