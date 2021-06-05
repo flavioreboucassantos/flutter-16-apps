@@ -8,8 +8,6 @@ import 'package:loja_virtual/screens/cart_screen.dart';
 import 'package:loja_virtual/screens/login_screen.dart';
 
 class ProductScreen extends StatelessWidget {
-  final TriggerMap cartProductModel = TriggerMap.instance('CartProductModel');
-
   final ProductData productData;
 
   ProductScreen(this.productData);
@@ -18,7 +16,7 @@ class ProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color primaryColor = Theme.of(context).primaryColor;
 
-    cartProductModel.map.clear();
+    final TriggerMap cartProductModel = TriggerMap({'setted': false});
 
     return Scaffold(
       appBar: AppBar(
@@ -30,8 +28,9 @@ class ProductScreen extends StatelessWidget {
           AspectRatio(
             aspectRatio: 0.9,
             child: Carousel(
-              images:
-                  productData.images.map((url) => NetworkImage(url)).toList(growable: false),
+              images: productData.images
+                  .map((url) => NetworkImage(url))
+                  .toList(growable: false),
               dotSize: 4.0,
               dotSpacing: 15.0,
               dotBgColor: Colors.transparent,
@@ -123,14 +122,14 @@ class ProductScreen extends StatelessWidget {
                 ),
                 TriggerBuilder<TriggerMap>(
                   model: cartProductModel,
-                  rebuildOnChange: () => cartProductModel.map['setted'] == null,
+                  rebuildOnChange: (model) => model.map['setted'] == false,
                   builder: (context, model, data) {
                     if (model.map['size'] != null) model.map['setted'] = true;
 
                     return SizedBox(
                       height: 44.0,
                       child: ElevatedButton(
-                        onPressed: model.map['setted'] != null
+                        onPressed: model.map['setted'] == true
                             ? () {
                                 if (CartModel.model.user.isLoggedIn()) {
                                   CartProduct cartProduct = CartProduct();
