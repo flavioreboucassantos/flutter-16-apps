@@ -173,9 +173,6 @@ class TriggerMap extends TriggerModel {
 
   /// Adds all key/value pairs of [other] to the internal map.
   ///
-  /// If a key of [other] is already in the internal map, its value
-  /// is overwritten.
-  ///
   /// If the [trigger] parameter is false, no events will be triggered from
   /// the constructor.
   TriggerMap([Map<String, dynamic> other, bool trigger = true]) {
