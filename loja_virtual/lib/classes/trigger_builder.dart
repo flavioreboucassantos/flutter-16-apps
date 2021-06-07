@@ -20,24 +20,6 @@ abstract class TriggerModel {
   List<_TriggerBuilderState> _builders;
   List<_TriggerBuilderState> _nullKeyBuilders;
 
-  TriggerModel() {
-    if (_typeKeys.containsKey(this.runtimeType)) {
-      _keys = _typeKeys[this.runtimeType];
-      _builders = _typeBuilders[this.runtimeType];
-      _nullKeyBuilders = _typeNullKeyBuilders[this.runtimeType];
-    } else {
-      List<String> keys = <String>[];
-      List<_TriggerBuilderState> builders = <_TriggerBuilderState>[];
-      List<_TriggerBuilderState> nullKeyBuilders = <_TriggerBuilderState>[];
-      _typeKeys[this.runtimeType] = keys;
-      _typeBuilders[this.runtimeType] = builders;
-      _typeNullKeyBuilders[this.runtimeType] = nullKeyBuilders;
-      _keys = keys;
-      _builders = builders;
-      _nullKeyBuilders = nullKeyBuilders;
-    }
-  }
-
   /// Provides a [TriggerModel] instance of type [T] from the [model] parameter.
   ///
   /// If an instance of type [T] is already been provided,
@@ -58,6 +40,24 @@ abstract class TriggerModel {
         }
       _singletons.add(model);
       return model;
+    }
+  }
+
+  TriggerModel() {
+    if (_typeKeys.containsKey(this.runtimeType)) {
+      _keys = _typeKeys[this.runtimeType];
+      _builders = _typeBuilders[this.runtimeType];
+      _nullKeyBuilders = _typeNullKeyBuilders[this.runtimeType];
+    } else {
+      List<String> keys = <String>[];
+      List<_TriggerBuilderState> builders = <_TriggerBuilderState>[];
+      List<_TriggerBuilderState> nullKeyBuilders = <_TriggerBuilderState>[];
+      _typeKeys[this.runtimeType] = keys;
+      _typeBuilders[this.runtimeType] = builders;
+      _typeNullKeyBuilders[this.runtimeType] = nullKeyBuilders;
+      _keys = keys;
+      _builders = builders;
+      _nullKeyBuilders = nullKeyBuilders;
     }
   }
 
@@ -333,21 +333,6 @@ typedef Widget StateBuilder<T extends TriggerModel>(
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
-  /// The [TriggerModel] to provide to the [builder].
-  final T model;
-
-  /// The [String] to subscribes the [TriggerBuilder] to rebuilds if the [key]
-  /// is updated or triggered.
-  final String keyBuilder;
-
-  /// An optional method that the return determines whether the Widget will
-  /// rebuild when the [model] changes.
-  final RebuildOnChange<T> rebuildOnChange;
-
-  /// Builds a Widget when the Widget is first created and whenever
-  /// the [TriggerModel] changes if [rebuildOnChange] is null or returns `true`.
-  final StateBuilder<T> builder;
-
   /// If the [model] argument is null, finds a [TriggerModel] instance of
   /// type [T] provided.
   ///
@@ -368,8 +353,41 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
     this.model,
     this.keyBuilder,
     this.rebuildOnChange,
+    this.root = false,
     this.builder,
   }) : super(key: key);
+
+  /// The [TriggerModel] to provide to the [builder].
+  final T model;
+
+  /// The [String] to subscribes the [TriggerBuilder] to rebuilds if the [key]
+  /// is updated or triggered.
+  final String keyBuilder;
+
+  /// An optional method that the return determines whether the Widget will
+  /// rebuild when the [model] changes.
+  final RebuildOnChange<T> rebuildOnChange;
+
+  /// If the [root] argument is true, it shares the same context for all the
+  /// next [TriggerBuilder] through the [build] method. This will discard
+  /// a previous shared context and move to sharing the current context.
+  ///
+  /// The [root] argument will be evaluated only when the [Widget] is inserted
+  /// or removed from the tree so, be careful to never change the value of
+  /// this argument.
+  ///
+  /// Be careful to set the [root] argument true only once per [Route] because
+  /// it considers only the last setted.
+  ///
+  /// If the [Navigator] removes the [Route] on what this object has
+  /// the [root] argument true, for example,
+  /// via a [Navigator.of(context).pushReplacement] call, then the context
+  /// shared by this object will be given as unsafe and will fail.
+  final bool root;
+
+  /// Builds a Widget when the Widget is first created and whenever
+  /// the [TriggerModel] changes if [rebuildOnChange] is null or returns `true`.
+  final StateBuilder<T> builder;
 
   /// An optional method that the return determines whether the Widget will
   /// rebuild when the [model] changes.
@@ -386,6 +404,8 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
 
 class _TriggerBuilderState<T extends TriggerModel>
     extends State<TriggerBuilder> {
+  static List<BuildContext> _contexts = <BuildContext>[];
+
   T model;
   Map<String, dynamic> data;
 
@@ -405,6 +425,8 @@ class _TriggerBuilderState<T extends TriggerModel>
 
   @override
   void initState() {
+    if (widget.root) _TriggerBuilderState._contexts.add(context);
+
     if (model == null) model = TriggerModel.singleton<T>();
     model._subscribe(widget.keyBuilder, this);
     super.initState();
@@ -428,10 +450,18 @@ class _TriggerBuilderState<T extends TriggerModel>
 
   @override
   void deactivate() {
+    if (widget.root) _TriggerBuilderState._contexts.remove(context);
+
     model._unsubscribe(this);
     super.deactivate();
   }
 
   @override
-  Widget build(BuildContext context) => widget.build(context, model, data);
+  Widget build(BuildContext context) => widget.build(
+        _TriggerBuilderState._contexts.length > 0
+            ? _TriggerBuilderState._contexts.last
+            : context,
+        model,
+        data,
+      );
 }
