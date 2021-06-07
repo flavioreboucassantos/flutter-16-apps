@@ -1,4 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
+/// The last shared [safeContext] from [TriggerBuilder].
+BuildContext safeContext;
+
+/// Builds a [StatelessWidget] using a shared [safeContext] if it exists.
+///
+/// Author: flavioReboucasSantos@gmail.com
+class StatelessBuilder extends StatelessWidget {
+  final WidgetBuilder builder;
+
+  const StatelessBuilder({
+    Key key,
+    this.builder,
+  }) : super(key: key);
+
+  @override
+  @nonVirtual
+  Widget build(BuildContext context) => builder(safeContext ?? context);
+}
 
 /// A base class that holds some data and allows other classes to listen to
 /// changes to that data.
@@ -353,7 +373,7 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
     this.model,
     this.keyBuilder,
     this.rebuildOnChange,
-    this.root = false,
+    this.safeContext = false,
     this.builder,
   }) : super(key: key);
 
@@ -368,22 +388,22 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
   /// rebuild when the [model] changes.
   final RebuildOnChange<T> rebuildOnChange;
 
-  /// If the [root] argument is true, it shares the same context for all the
+  /// If the [safeContext] argument is true, it shares the same context for all the
   /// next [TriggerBuilder] through the [build] method. This will discard
   /// a previous shared context and move to sharing the current context.
   ///
-  /// The [root] argument will be evaluated only when the [Widget] is inserted
+  /// The [safeContext] argument will be evaluated only when the [Widget] is inserted
   /// or removed from the tree so, be careful to never change the value of
   /// this argument.
   ///
-  /// Be careful to set the [root] argument true only once per [Route] because
+  /// Be careful to set the [safeContext] argument true only once per [Route] because
   /// it considers only the last setted.
   ///
   /// If the [Navigator] removes the [Route] on what this object has
-  /// the [root] argument true, for example,
+  /// the [safeContext] argument true, for example,
   /// via a [Navigator.of(context).pushReplacement] call, then the context
   /// shared by this object will be given as unsafe and will fail.
-  final bool root;
+  final bool safeContext;
 
   /// Builds a Widget when the Widget is first created and whenever
   /// the [TriggerModel] changes if [rebuildOnChange] is null or returns `true`.
@@ -404,7 +424,7 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
 
 class _TriggerBuilderState<T extends TriggerModel>
     extends State<TriggerBuilder> {
-  static List<BuildContext> _contexts = <BuildContext>[];
+  static final List<BuildContext> _contexts = <BuildContext>[];
 
   T model;
   Map<String, dynamic> data;
@@ -425,7 +445,10 @@ class _TriggerBuilderState<T extends TriggerModel>
 
   @override
   void initState() {
-    if (widget.root) _TriggerBuilderState._contexts.add(context);
+    if (widget.safeContext) {
+      _contexts.add(context);
+      safeContext = context;
+    }
 
     if (model == null) model = TriggerModel.singleton<T>();
     model._subscribe(widget.keyBuilder, this);
@@ -450,7 +473,10 @@ class _TriggerBuilderState<T extends TriggerModel>
 
   @override
   void deactivate() {
-    if (widget.root) _TriggerBuilderState._contexts.remove(context);
+    if (widget.safeContext) {
+      _contexts.remove(context);
+      safeContext = (_contexts.length > 0) ? _contexts.last : null;
+    }
 
     model._unsubscribe(this);
     super.deactivate();
@@ -458,9 +484,7 @@ class _TriggerBuilderState<T extends TriggerModel>
 
   @override
   Widget build(BuildContext context) => widget.build(
-        _TriggerBuilderState._contexts.length > 0
-            ? _TriggerBuilderState._contexts.last
-            : context,
+        safeContext ?? context,
         model,
         data,
       );
