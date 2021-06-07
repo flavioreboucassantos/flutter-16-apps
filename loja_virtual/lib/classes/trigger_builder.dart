@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 /// The last shared [safeContext] from [TriggerBuilder].
 BuildContext safeContext;
 
-/// Builds a [StatelessWidget] using a shared [safeContext] if it exists.
+/// Builds a [Widget] using a shared [safeContext] if it exists.
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class StatelessBuilder extends StatelessWidget {
