@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/cart_model.dart';
-import 'package:loja_virtual/screens/order_screen.dart';
 import 'package:loja_virtual/tiles/cart_product_tile.dart';
 import 'package:loja_virtual/widgets/cart_price.dart';
 import 'package:loja_virtual/widgets/discount_card.dart';
@@ -39,7 +38,6 @@ class CartScreen extends StatelessWidget {
       body: TriggerBuilder<CartModel>(
         model: CartModel.model,
         keyBuilder: 'body',
-        root: true,
         builder: (context, model, data) {
           bool isLoggedIn = CartModel.model.user.isLoggedIn();
           Color primaryColor = Theme.of(context).primaryColor;
