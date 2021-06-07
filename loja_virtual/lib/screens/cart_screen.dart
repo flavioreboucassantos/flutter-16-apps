@@ -39,6 +39,7 @@ class CartScreen extends StatelessWidget {
       body: TriggerBuilder<CartModel>(
         model: CartModel.model,
         keyBuilder: 'body',
+        root: true,
         builder: (context, model, data) {
           bool isLoggedIn = CartModel.model.user.isLoggedIn();
           Color primaryColor = Theme.of(context).primaryColor;
@@ -120,15 +121,7 @@ class CartScreen extends StatelessWidget {
               ),
               DiscountCard(),
               ShipCard(),
-              CartPrice(() async {
-                String orderId = await model.finishOrder();
-                if (orderId != null)
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(
-                      builder: (context) => OrderScreen(orderId),
-                    ),
-                  );
-              }),
+              CartPrice(),
             ],
           );
         },

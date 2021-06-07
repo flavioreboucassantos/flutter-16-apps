@@ -93,7 +93,10 @@ class CartProductTile extends TriggerBuilder<CartModel> {
 
   @override
   Widget build(
-      BuildContext context, CartModel model, Map<String, dynamic> data) {
+    BuildContext context,
+    CartModel model,
+    Map<String, dynamic> data,
+  ) {
     if (cartProduct.productData == null) {
       model.productsToLoad++;
       return FutureBuilder<DocumentSnapshot>(

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/cart_model.dart';
+import 'package:loja_virtual/screens/order_screen.dart';
 
 class CartPrice extends TriggerBuilder<CartModel> {
-  final VoidCallback buy;
-
-  CartPrice(this.buy)
+  CartPrice()
       : super(
           model: CartModel.model,
           keyBuilder: 'prices',
@@ -13,7 +12,10 @@ class CartPrice extends TriggerBuilder<CartModel> {
 
   @override
   Widget build(
-      BuildContext context, CartModel model, Map<String, dynamic> data) {
+    BuildContext context,
+    CartModel model,
+    Map<String, dynamic> data,
+  ) {
     Color primaryColor = Theme.of(context).primaryColor;
 
     model.updateProductsPrice();
@@ -80,7 +82,15 @@ class CartPrice extends TriggerBuilder<CartModel> {
             ),
             SizedBox(height: 12.0),
             ElevatedButton(
-              onPressed: buy,
+              onPressed: () async {
+                String orderId = await model.finishOrder();
+                if (orderId != null)
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => OrderScreen(orderId),
+                    ),
+                  );
+              },
               child: Text('Finalizar Pedido'),
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(primaryColor),
