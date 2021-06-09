@@ -108,8 +108,8 @@ abstract class TriggerModel {
     for (var start = 0; start < _keys.length; start++) {
       int i = _keys.indexOf(key, start);
       if (i == -1) break;
-      _builders[i]
-          ._triggerBuilder(LinkedHashMap<String, dynamic>.of({key: value}));
+      _builders[i]._triggerBuilder(
+          <String, dynamic>{key: value} as LinkedHashMap<String, dynamic>);
       start = i + 1;
     }
   }
@@ -227,7 +227,7 @@ class TriggerMap extends TriggerModel {
   void _triggerByPair(String key, dynamic value) {
     TriggerFunction function = _keysFunctions[key];
     if (function != null)
-      function(LinkedHashMap<String, dynamic>.of({key: value}));
+      function(<String, dynamic>{key: value} as LinkedHashMap<String, dynamic>);
 
     super._triggerByPair(key, value);
   }
@@ -305,13 +305,14 @@ class TriggerMap extends TriggerModel {
   /// is overwritten.
   void mergeKey(String key, Map<String, dynamic> other) {
     if (map[key] == null)
-      map[key] = LinkedHashMap<String, dynamic>.of(other);
+      map[key] = other as LinkedHashMap<String, dynamic>;
     else
       (map[key] as LinkedHashMap<String, dynamic>).addAll(other);
 
     _triggerByPair(key, other);
 
-    _triggerNullKey(LinkedHashMap<String, dynamic>.of({key: other}));
+    _triggerNullKey(
+        <String, dynamic>{key: other} as LinkedHashMap<String, dynamic>);
   }
 
   /// Defines a [key]/[value] pair to the internal map.
@@ -320,7 +321,8 @@ class TriggerMap extends TriggerModel {
 
     _triggerByPair(key, value);
 
-    _triggerNullKey(LinkedHashMap<String, dynamic>.of({key: value}));
+    _triggerNullKey(
+        <String, dynamic>{key: value} as LinkedHashMap<String, dynamic>);
   }
 
   /// Just trigger the subscribed functions and builders associated with
