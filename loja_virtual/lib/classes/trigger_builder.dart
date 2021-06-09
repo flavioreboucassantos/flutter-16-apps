@@ -1,24 +1,30 @@
+import 'dart:collection';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 /// The last shared [safeContext] from [TriggerBuilder].
-BuildContext safeContext;
+///
+/// Must be used through [Null-aware operators], for example:
+/// [safeContext ?? context]
+BuildContext get safeContext => _TriggerBuilderState._safeContext;
 
 /// Builds a [Widget] using the shared [safeContext] from [TriggerBuilder]
 /// if it exists.
 ///
 /// Author: flavioReboucasSantos@gmail.com
-class StatelessBuilder extends StatelessWidget {
+class SafeBuilder extends StatelessWidget {
   final WidgetBuilder builder;
 
-  const StatelessBuilder({
+  const SafeBuilder({
     Key key,
     this.builder,
   }) : super(key: key);
 
   @override
   @nonVirtual
-  Widget build(BuildContext context) => builder(safeContext ?? context);
+  Widget build(BuildContext context) =>
+      builder(_TriggerBuilderState._safeContext ?? context);
 }
 
 /// A base class that holds some data and allows other classes to listen to
@@ -29,11 +35,12 @@ class StatelessBuilder extends StatelessWidget {
 ///
 /// Author: flavioReboucasSantos@gmail.com
 abstract class TriggerModel {
-  static Map<Type, List<String>> _typeKeys = Map<Type, List<String>>();
-  static Map<Type, List<_TriggerBuilderState>> _typeBuilders =
-      Map<Type, List<_TriggerBuilderState>>();
-  static Map<Type, List<_TriggerBuilderState>> _typeNullKeyBuilders =
-      Map<Type, List<_TriggerBuilderState>>();
+  static SplayTreeMap<int, List<String>> _typeKeys =
+      SplayTreeMap<int, List<String>>();
+  static SplayTreeMap<int, List<_TriggerBuilderState>> _typeBuilders =
+      SplayTreeMap<int, List<_TriggerBuilderState>>();
+  static SplayTreeMap<int, List<_TriggerBuilderState>> _typeNullKeyBuilders =
+      SplayTreeMap<int, List<_TriggerBuilderState>>();
 
   static List<TriggerModel> _singletons = <TriggerModel>[];
 
@@ -65,20 +72,21 @@ abstract class TriggerModel {
   }
 
   TriggerModel() {
-    if (_typeKeys.containsKey(this.runtimeType)) {
-      _keys = _typeKeys[this.runtimeType];
-      _builders = _typeBuilders[this.runtimeType];
-      _nullKeyBuilders = _typeNullKeyBuilders[this.runtimeType];
-    } else {
+    int _type = this.runtimeType.hashCode;
+    if (_typeKeys[_type] == null) {
       List<String> keys = <String>[];
       List<_TriggerBuilderState> builders = <_TriggerBuilderState>[];
       List<_TriggerBuilderState> nullKeyBuilders = <_TriggerBuilderState>[];
-      _typeKeys[this.runtimeType] = keys;
-      _typeBuilders[this.runtimeType] = builders;
-      _typeNullKeyBuilders[this.runtimeType] = nullKeyBuilders;
+      _typeKeys[_type] = keys;
+      _typeBuilders[_type] = builders;
+      _typeNullKeyBuilders[_type] = nullKeyBuilders;
       _keys = keys;
       _builders = builders;
       _nullKeyBuilders = nullKeyBuilders;
+    } else {
+      _keys = _typeKeys[_type];
+      _builders = _typeBuilders[_type];
+      _nullKeyBuilders = _typeNullKeyBuilders[_type];
     }
   }
 
@@ -107,19 +115,20 @@ abstract class TriggerModel {
     for (var start = 0; start < _keys.length; start++) {
       int i = _keys.indexOf(key, start);
       if (i == -1) break;
-      _builders[i]._triggerBuilder({key: value});
+      _builders[i]
+          ._triggerBuilder({key: value} as LinkedHashMap<String, dynamic>);
       start = i + 1;
     }
   }
 
   @mustCallSuper
-  void _triggerByKeys(List<String> keys, Map<String, dynamic> other) {
+  void _triggerByKeys(List<String> keys, LinkedHashMap<String, dynamic> other) {
     for (var i = 0; i < _keys.length; i++)
       if (keys.contains(_keys[i])) _builders[i]._triggerBuilder(other);
   }
 
   @mustCallSuper
-  void _triggerNullKey(Map<String, dynamic> other) {
+  void _triggerNullKey(LinkedHashMap<String, dynamic> other) {
     for (var i = 0; i < _nullKeyBuilders.length; i++)
       _nullKeyBuilders[i]._triggerBuilder(other);
   }
@@ -130,7 +139,7 @@ abstract class TriggerModel {
     if (keys != null)
       _triggerByKeys(
         keys,
-        Map.fromIterables(
+        LinkedHashMap<String, dynamic>.fromIterables(
           keys,
           List.filled(keys.length, null, growable: false),
         ),
@@ -138,8 +147,8 @@ abstract class TriggerModel {
 
     _triggerNullKey(
       keys == null
-          ? {}
-          : Map.fromIterables(
+          ? LinkedHashMap<String, dynamic>()
+          : LinkedHashMap<String, dynamic>.fromIterables(
               keys,
               List.filled(keys.length, null, growable: false),
             ),
@@ -147,23 +156,25 @@ abstract class TriggerModel {
   }
 }
 
-typedef void TriggerFunction(Map<String, dynamic> data);
+typedef void TriggerFunction(LinkedHashMap<String, dynamic> data);
 
 /// Trigger functions when updating keys at an internal Map<String, dynamic>
 ///
 /// Author: flavioReboucasSantos@gmail.com
 class TriggerMap extends TriggerModel {
-  static Map<String, TriggerMap> _instances = Map<String, TriggerMap>();
+  static SplayTreeMap<String, TriggerMap> _instances =
+      SplayTreeMap<String, TriggerMap>();
 
-  static Map<Type, Map<String, TriggerFunction>> _typeKeysFunctions =
-      Map<Type, Map<String, TriggerFunction>>();
-  static Map<Type, List<TriggerFunction>> _typeNullKeyFunctions =
-      Map<Type, List<TriggerFunction>>();
+  static SplayTreeMap<int, SplayTreeMap<String, TriggerFunction>>
+      _typeKeysFunctions =
+      SplayTreeMap<int, SplayTreeMap<String, TriggerFunction>>();
+  static SplayTreeMap<int, List<TriggerFunction>> _typeNullKeyFunctions =
+      SplayTreeMap<int, List<TriggerFunction>>();
 
-  Map<String, TriggerFunction> _keysFunctions;
+  SplayTreeMap<String, TriggerFunction> _keysFunctions;
   List<TriggerFunction> _nullKeyFunctions;
 
-  final Map<String, dynamic> map = Map<String, dynamic>();
+  final HashMap<String, dynamic> map = HashMap<String, dynamic>();
 
   /// Initializes or retrieves a [TriggerMap] instance by [id] parameter.
   ///
@@ -197,18 +208,20 @@ class TriggerMap extends TriggerModel {
   /// If the [trigger] parameter is false, no events will be triggered from
   /// the constructor.
   TriggerMap([Map<String, dynamic> other, bool trigger = true]) {
-    if (_typeKeysFunctions.containsKey(this.runtimeType)) {
-      _keysFunctions = _typeKeysFunctions[this.runtimeType];
-      _nullKeyFunctions = _typeNullKeyFunctions[this.runtimeType];
-    } else {
-      Map<String, TriggerFunction> keysFunctions =
-          Map<String, TriggerFunction>();
+    int _type = this.runtimeType.hashCode;
+    if (_typeKeysFunctions[_type] == null) {
+      SplayTreeMap<String, TriggerFunction> keysFunctions =
+          SplayTreeMap<String, TriggerFunction>();
       List<TriggerFunction> nullKeyFunctions = <TriggerFunction>[];
-      _typeKeysFunctions[this.runtimeType] = keysFunctions;
-      _typeNullKeyFunctions[this.runtimeType] = nullKeyFunctions;
+      _typeKeysFunctions[_type] = keysFunctions;
+      _typeNullKeyFunctions[_type] = nullKeyFunctions;
       _keysFunctions = keysFunctions;
       _nullKeyFunctions = nullKeyFunctions;
+    } else {
+      _keysFunctions = _typeKeysFunctions[_type];
+      _nullKeyFunctions = _typeNullKeyFunctions[_type];
     }
+
     if (other != null) {
       if (trigger)
         mergeAll(other);
@@ -220,13 +233,14 @@ class TriggerMap extends TriggerModel {
   @override
   void _triggerByPair(String key, dynamic value) {
     TriggerFunction function = _keysFunctions[key];
-    if (function != null) function({key: value});
+    if (function != null)
+      function({key: value} as LinkedHashMap<String, dynamic>);
 
     super._triggerByPair(key, value);
   }
 
   @override
-  void _triggerByKeys(List<String> keys, Map<String, dynamic> other) {
+  void _triggerByKeys(List<String> keys, LinkedHashMap<String, dynamic> other) {
     TriggerFunction function;
     for (var i = 0; i < keys.length; i++) {
       function = _keysFunctions[keys[i]];
@@ -237,7 +251,7 @@ class TriggerMap extends TriggerModel {
   }
 
   @override
-  void _triggerNullKey(Map<String, dynamic> other) {
+  void _triggerNullKey(LinkedHashMap<String, dynamic> other) {
     for (var i = 0; i < _nullKeyFunctions.length; i++)
       _nullKeyFunctions[i](other);
 
@@ -301,7 +315,7 @@ class TriggerMap extends TriggerModel {
 
     _triggerByPair(key, other);
 
-    _triggerNullKey({key: other});
+    _triggerNullKey({key: other} as LinkedHashMap<String, dynamic>);
   }
 
   /// Defines a [key]/[value] pair to the internal map.
@@ -310,7 +324,7 @@ class TriggerMap extends TriggerModel {
 
     _triggerByPair(key, value);
 
-    _triggerNullKey({key: value});
+    _triggerNullKey({key: value} as LinkedHashMap<String, dynamic>);
   }
 
   /// Just trigger the subscribed functions and builders associated with
@@ -320,7 +334,7 @@ class TriggerMap extends TriggerModel {
     if (keys != null)
       _triggerByKeys(
         keys,
-        Map.fromIterables(
+        LinkedHashMap<String, dynamic>.fromIterables(
           keys,
           List.filled(keys.length, null, growable: false),
         ),
@@ -329,7 +343,7 @@ class TriggerMap extends TriggerModel {
     _triggerNullKey(
       keys == null
           ? {}
-          : Map.fromIterables(
+          : LinkedHashMap<String, dynamic>.fromIterables(
               keys,
               List.filled(keys.length, null, growable: false),
             ),
@@ -347,7 +361,7 @@ typedef bool RebuildOnChange<T extends TriggerModel>(T model);
 typedef Widget StateBuilder<T extends TriggerModel>(
   BuildContext context,
   T model,
-  Map<String, dynamic> data,
+  LinkedHashMap<String, dynamic> data,
 );
 
 /// Rebuilds the Widget whenever the [TriggerModel] changes.
@@ -416,7 +430,8 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
   bool rebuild(T model) => rebuildOnChange == null || rebuildOnChange(model);
 
   @protected
-  Widget build(BuildContext context, T model, Map<String, dynamic> data) =>
+  Widget build(
+          BuildContext context, T model, LinkedHashMap<String, dynamic> data) =>
       builder(context, model, data);
 
   @override
@@ -426,13 +441,14 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
 class _TriggerBuilderState<T extends TriggerModel>
     extends State<TriggerBuilder> {
   static final List<BuildContext> _contexts = <BuildContext>[];
+  static BuildContext _safeContext;
 
   T model;
-  Map<String, dynamic> data;
+  LinkedHashMap<String, dynamic> data;
 
   _TriggerBuilderState(this.model);
 
-  void _triggerBuilder(Map<String, dynamic> other) {
+  void _triggerBuilder(LinkedHashMap<String, dynamic> other) {
     if (widget.rebuild(model)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -448,7 +464,7 @@ class _TriggerBuilderState<T extends TriggerModel>
   void initState() {
     if (widget.safeContext) {
       _contexts.add(context);
-      safeContext = context;
+      _safeContext = context;
     }
 
     if (model == null) model = TriggerModel.singleton<T>();
@@ -476,7 +492,7 @@ class _TriggerBuilderState<T extends TriggerModel>
   void deactivate() {
     if (widget.safeContext) {
       _contexts.remove(context);
-      safeContext = (_contexts.length > 0) ? _contexts.last : null;
+      _safeContext = (_contexts.length > 0) ? _contexts.last : null;
     }
 
     model._unsubscribe(this);
@@ -485,7 +501,7 @@ class _TriggerBuilderState<T extends TriggerModel>
 
   @override
   Widget build(BuildContext context) => widget.build(
-        safeContext ?? context,
+        _safeContext ?? context,
         model,
         data,
       );
