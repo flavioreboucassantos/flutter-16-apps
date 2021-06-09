@@ -1,5 +1,4 @@
 import 'dart:collection';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -42,7 +41,8 @@ abstract class TriggerModel {
   static SplayTreeMap<int, List<_TriggerBuilderState>> _typeNullKeyBuilders =
       SplayTreeMap<int, List<_TriggerBuilderState>>();
 
-  static List<TriggerModel> _singletons = <TriggerModel>[];
+  static SplayTreeMap<int, TriggerModel> _typeSingleton =
+      SplayTreeMap<int, TriggerModel>();
 
   List<String> _keys;
   List<_TriggerBuilderState> _builders;
@@ -50,23 +50,16 @@ abstract class TriggerModel {
 
   /// Provides a [TriggerModel] instance of type [T] from the [model] parameter.
   ///
-  /// If an instance of type [T] is already been provided,
-  /// it will be overwritten.
+  /// If an instance of type [T] is already been provided, it will
+  /// be overwritten.
   ///
-  /// If the [model] parameter is null, finds a [TriggerModel]
-  /// instance of type [T] provided.
+  /// If the [model] parameter is null, finds a [TriggerModel] instance of
+  /// type [T] provided.
   static T singleton<T extends TriggerModel>([T model]) {
     if (model == null) {
-      for (var i = 0; i < _singletons.length; i++)
-        if (_singletons[i] is T) return _singletons[i];
-      return null;
+      return _typeSingleton[T.hashCode];
     } else {
-      for (var i = 0; i < _singletons.length; i++)
-        if (_singletons[i] is T) {
-          _singletons[i] = model;
-          return model;
-        }
-      _singletons.add(model);
+      _typeSingleton[T.hashCode] = model;
       return model;
     }
   }
@@ -116,7 +109,7 @@ abstract class TriggerModel {
       int i = _keys.indexOf(key, start);
       if (i == -1) break;
       _builders[i]
-          ._triggerBuilder({key: value} as LinkedHashMap<String, dynamic>);
+          ._triggerBuilder(LinkedHashMap<String, dynamic>.of({key: value}));
       start = i + 1;
     }
   }
@@ -174,7 +167,7 @@ class TriggerMap extends TriggerModel {
   SplayTreeMap<String, TriggerFunction> _keysFunctions;
   List<TriggerFunction> _nullKeyFunctions;
 
-  final HashMap<String, dynamic> map = HashMap<String, dynamic>();
+  final LinkedHashMap<String, dynamic> map = LinkedHashMap<String, dynamic>();
 
   /// Initializes or retrieves a [TriggerMap] instance by [id] parameter.
   ///
@@ -234,7 +227,7 @@ class TriggerMap extends TriggerModel {
   void _triggerByPair(String key, dynamic value) {
     TriggerFunction function = _keysFunctions[key];
     if (function != null)
-      function({key: value} as LinkedHashMap<String, dynamic>);
+      function(LinkedHashMap<String, dynamic>.of({key: value}));
 
     super._triggerByPair(key, value);
   }
@@ -311,11 +304,14 @@ class TriggerMap extends TriggerModel {
   /// If a key of [other] is already in the map of the [key], its value
   /// is overwritten.
   void mergeKey(String key, Map<String, dynamic> other) {
-    (map[key] as Map<String, dynamic>).addAll(other);
+    if (map[key] == null)
+      map[key] = LinkedHashMap<String, dynamic>.of(other);
+    else
+      (map[key] as LinkedHashMap<String, dynamic>).addAll(other);
 
     _triggerByPair(key, other);
 
-    _triggerNullKey({key: other} as LinkedHashMap<String, dynamic>);
+    _triggerNullKey(LinkedHashMap<String, dynamic>.of({key: other}));
   }
 
   /// Defines a [key]/[value] pair to the internal map.
@@ -324,7 +320,7 @@ class TriggerMap extends TriggerModel {
 
     _triggerByPair(key, value);
 
-    _triggerNullKey({key: value} as LinkedHashMap<String, dynamic>);
+    _triggerNullKey(LinkedHashMap<String, dynamic>.of({key: value}));
   }
 
   /// Just trigger the subscribed functions and builders associated with
