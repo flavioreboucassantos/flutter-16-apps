@@ -137,6 +137,7 @@ class ProductScreen extends StatelessWidget {
                                   cartProduct.quantity = 1;
                                   cartProduct.pid = productData.id;
                                   cartProduct.category = productData.category;
+                                  cartProduct.productData = productData;
 
                                   CartModel.model.addCartItem(cartProduct);
 
