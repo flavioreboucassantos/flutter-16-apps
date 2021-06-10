@@ -84,11 +84,9 @@ abstract class TriggerModel {
   }
 
   void _subscribe(String keyBuilder, _TriggerBuilderState builder) {
-    if (keyBuilder == null) {
-      if (!_nullKeyBuilders.contains(builder)) {
-        _nullKeyBuilders.add(builder);
-      }
-    } else {
+    if (keyBuilder == null)
+      _nullKeyBuilders.add(builder);
+    else {
       _keys.add(keyBuilder);
       _builders.add(builder);
     }
@@ -369,12 +367,12 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
   /// If the [model] argument is null, finds a [TriggerModel] instance of
   /// type [T] provided.
   ///
-  /// If the [model] argument is not null and different from the previous,
-  /// unsubscribes the previous and subscribe the other.
+  /// If the [model] argument is not null, different from the previous and
+  /// different of type [T], unsubscribes the previous and subscribe the other.
   ///
-  /// It is possible to construct different instances of [TriggerBuilder]
-  /// using the same [keyBuilder] argument, triggering all the instances
-  /// at the same time.
+  /// It is possible to construct different instances of [TriggerBuilder] using
+  /// the same [keyBuilder] argument, triggering all the instances at the
+  /// same time.
   ///
   /// If the [keyBuilder] argument is null, the [builder] will trigger
   /// from [any event], always after the others.
@@ -401,16 +399,16 @@ class TriggerBuilder<T extends TriggerModel> extends StatefulWidget {
   /// rebuild when the [model] changes.
   final RebuildOnChange<T> rebuildOnChange;
 
-  /// If the [safeContext] argument is true, it shares the same context for all the
-  /// next [TriggerBuilder] through the [build] method. This will discard
-  /// a previous shared context and move to sharing the current context.
+  /// If the [safeContext] argument is true, it shares the same context for all
+  /// the next [TriggerBuilder] through the [build] method. This will discard a
+  /// previous shared context and move to sharing the current context.
   ///
-  /// The [safeContext] argument will be evaluated only when the [Widget] is inserted
-  /// or removed from the tree so, be careful to never change the value of
-  /// this argument.
+  /// The [safeContext] argument will be evaluated only when the [Widget]
+  /// is inserted or removed from the tree so, be careful to never change the
+  /// value of this argument.
   ///
-  /// Be careful to set the [safeContext] argument true only once per [Route] because
-  /// it considers only the last setted.
+  /// Be careful to set the [safeContext] argument true only once per [Route]
+  /// because it considers only the last setted.
   ///
   /// If the [Navigator] removes the [Route] on what this object has
   /// the [safeContext] argument true, for example,
@@ -473,14 +471,32 @@ class _TriggerBuilderState<T extends TriggerModel>
   @override
   void didUpdateWidget(TriggerBuilder oldWidget) {
     if (oldWidget.keyBuilder == widget.keyBuilder) {
-      if (widget.model != null && widget.model != model) {
-        model._unsubscribe(this);
-        model = widget.model;
-        model._subscribe(widget.keyBuilder, this);
+      if (widget.model == null) {
+        T singleton = TriggerModel.singleton<T>();
+        if (model != singleton) {
+          if (model.runtimeType == T)
+            model = singleton;
+          else {
+            model._unsubscribe(this);
+            model = singleton;
+            model._subscribe(widget.keyBuilder, this);
+          }
+        }
+      } else if (model != widget.model) {
+        if (model.runtimeType == widget.model.runtimeType)
+          model = widget.model;
+        else {
+          model._unsubscribe(this);
+          model = widget.model;
+          model._subscribe(widget.keyBuilder, this);
+        }
       }
     } else {
       model._unsubscribe(this);
-      if (widget.model != null && widget.model != model) model = widget.model;
+      if (widget.model == null) {
+        T singleton = TriggerModel.singleton<T>();
+        if (model != singleton) model = singleton;
+      } else if (model != widget.model) model = widget.model;
       model._subscribe(widget.keyBuilder, this);
     }
     super.didUpdateWidget(oldWidget);
