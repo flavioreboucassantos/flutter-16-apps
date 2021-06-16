@@ -16,7 +16,8 @@ class ProductScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final Color primaryColor = Theme.of(context).primaryColor;
 
-    final TriggerMap cartProductModel = TriggerMap({'setted': false});
+    final TriggerMap cartProductModel =
+        TriggerModel.singleton(TriggerMap({'setted': false}));
 
     return Scaffold(
       appBar: AppBar(

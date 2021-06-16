@@ -14,6 +14,11 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     void _onSuccess() {
       Navigator.of(context).pop();
+      TriggerMap model = TriggerModel.singleton<TriggerMap>();
+      if (model != null) {
+        model.map['setted'] = false;
+        model.notifyListeners();
+      }
     }
 
     void _onFail() {
