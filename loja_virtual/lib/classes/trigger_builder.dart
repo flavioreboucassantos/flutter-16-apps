@@ -93,7 +93,7 @@ abstract class TriggerModel {
     for (var start = 0; start < _keys.length; start++) {
       int i = _keys.indexOf(key, start);
       if (i == -1) break;
-      _builders[i]._triggerBuilder(
+      _builders[i].triggerBuilder(
           <String, dynamic>{key: value} as LinkedHashMap<String, dynamic>);
       start = i + 1;
     }
@@ -102,13 +102,13 @@ abstract class TriggerModel {
   @mustCallSuper
   void _triggerByKeys(List<String> keys, LinkedHashMap<String, dynamic> other) {
     for (var i = 0; i < _keys.length; i++)
-      if (keys.contains(_keys[i])) _builders[i]._triggerBuilder(other);
+      if (keys.contains(_keys[i])) _builders[i].triggerBuilder(other);
   }
 
   @mustCallSuper
   void _triggerNullKey(LinkedHashMap<String, dynamic> other) {
     for (var i = 0; i < _nullKeyBuilders.length; i++)
-      _nullKeyBuilders[i]._triggerBuilder(other);
+      _nullKeyBuilders[i].triggerBuilder(other);
   }
 
   /// Just trigger the subscribed builders associated with the [keys] parameter
@@ -435,12 +435,23 @@ class _TriggerBuilderState<T extends TriggerModel>
   static SplayTreeMap<int, List<_TriggerBuilderState>> _typeNullKeyBuilders =
       SplayTreeMap<int, List<_TriggerBuilderState>>();
 
+  int type = T.hashCode;
   T model;
   LinkedHashMap<String, dynamic> data;
 
   _TriggerBuilderState(this.model);
 
-  void _triggerBuilder(LinkedHashMap<String, dynamic> other) {
+  void setTree() {
+    if (model._type != type)
+      model._setTree(
+        type,
+        _typeKeys[type],
+        _typeBuilders[type],
+        _typeNullKeyBuilders[type],
+      );
+  }
+
+  void triggerBuilder(LinkedHashMap<String, dynamic> other) {
     if (widget.rebuild(model)) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -452,17 +463,6 @@ class _TriggerBuilderState<T extends TriggerModel>
     }
   }
 
-  void _setTree() {
-    int type = T.hashCode;
-    if (model._type != type)
-      model._setTree(
-        type,
-        _typeKeys[type],
-        _typeBuilders[type],
-        _typeNullKeyBuilders[type],
-      );
-  }
-
   @override
   void initState() {
     if (widget.safeContext) {
@@ -472,7 +472,6 @@ class _TriggerBuilderState<T extends TriggerModel>
 
     if (model == null) model = TriggerModel.singleton<T>();
 
-    int type = T.hashCode;
     if (_typeKeys[type] == null) {
       List<String> keys = <String>[];
       List<_TriggerBuilderState> builders = <_TriggerBuilderState>[];
@@ -487,13 +486,8 @@ class _TriggerBuilderState<T extends TriggerModel>
           builders,
           nullKeyBuilders,
         );
-    } else if (model._type != type)
-      model._setTree(
-        type,
-        _typeKeys[type],
-        _typeBuilders[type],
-        _typeNullKeyBuilders[type],
-      );
+    } else
+      setTree();
 
     model._subscribe(widget.keyBuilder, this);
     super.initState();
@@ -506,11 +500,11 @@ class _TriggerBuilderState<T extends TriggerModel>
         T singleton = TriggerModel.singleton<T>();
         if (model != singleton) {
           model = singleton;
-          _setTree();
+          setTree();
         }
       } else if (model != widget.model) {
         model = widget.model;
-        _setTree();
+        setTree();
       }
     } else {
       model._unsubscribe(this);
@@ -518,7 +512,7 @@ class _TriggerBuilderState<T extends TriggerModel>
         T singleton = TriggerModel.singleton<T>();
         if (model != singleton) model = singleton;
       } else if (model != widget.model) model = widget.model;
-      _setTree();
+      setTree();
       model._subscribe(widget.keyBuilder, this);
     }
     super.didUpdateWidget(oldWidget);
