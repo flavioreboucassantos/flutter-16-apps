@@ -14,10 +14,11 @@ class ProductScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Theme.of(context).primaryColor;
+    final Color primaryColor = Theme
+        .of(context)
+        .primaryColor;
 
-    final TriggerMap cartProductModel =
-        TriggerModel.singleton(TriggerMap({'setted': false}));
+    final TriggerMap cartProductModel = TriggerMap({'setted': false});
 
     return Scaffold(
       appBar: AppBar(
@@ -73,7 +74,9 @@ class ProductScreen extends StatelessWidget {
                 TriggerBuilder<TriggerMap>(
                   model: cartProductModel,
                   builder: (context, model, data) {
-                    final Color primaryColor = Theme.of(context).primaryColor;
+                    final Color primaryColor = Theme
+                        .of(context)
+                        .primaryColor;
 
                     return SizedBox(
                       height: 34.0,
@@ -89,7 +92,8 @@ class ProductScreen extends StatelessWidget {
                         ),
                         children: productData.sizes
                             .map(
-                              (size) => GestureDetector(
+                              (size) =>
+                              GestureDetector(
                                 onTap: () {
                                   model.setKey('size', size);
                                 },
@@ -112,7 +116,7 @@ class ProductScreen extends StatelessWidget {
                                   child: Text(size),
                                 ),
                               ),
-                            )
+                        )
                             .toList(growable: false),
                       ),
                     );
@@ -132,29 +136,29 @@ class ProductScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: model.map['setted'] == true
                             ? () {
-                                if (CartModel.model.user.isLoggedIn()) {
-                                  CartProduct cartProduct = CartProduct();
-                                  cartProduct.size = model.map['size'];
-                                  cartProduct.quantity = 1;
-                                  cartProduct.pid = productData.id;
-                                  cartProduct.category = productData.category;
-                                  cartProduct.productData = productData;
+                          if (CartModel.model.user.isLoggedIn()) {
+                            CartProduct cartProduct = CartProduct();
+                            cartProduct.size = model.map['size'];
+                            cartProduct.quantity = 1;
+                            cartProduct.pid = productData.id;
+                            cartProduct.category = productData.category;
+                            cartProduct.productData = productData;
 
-                                  CartModel.model.addCartItem(cartProduct);
+                            CartModel.model.addCartItem(cartProduct);
 
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => CartScreen(),
-                                    ),
-                                  );
-                                } else {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => LoginScreen(),
-                                    ),
-                                  );
-                                }
-                              }
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => CartScreen(),
+                              ),
+                            );
+                          } else {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => LoginScreen(),
+                              ),
+                            );
+                          }
+                        }
                             : null,
                         child: Text(
                           CartModel.model.user.isLoggedIn()
@@ -166,11 +170,13 @@ class ProductScreen extends StatelessWidget {
                         ),
                         style: ButtonStyle(
                           backgroundColor: MaterialStateProperty.resolveWith(
-                            (Set<MaterialState> states) {
+                                (Set<MaterialState> states) {
                               if (states.contains(MaterialState.disabled)) {
                                 return Colors.grey;
                               }
-                              return Theme.of(context).primaryColor;
+                              return Theme
+                                  .of(context)
+                                  .primaryColor;
                             },
                           ),
                         ),

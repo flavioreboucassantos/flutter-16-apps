@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:loja_virtual/classes/trigger_builder.dart';
 import 'package:loja_virtual/models/user_model.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:loja_virtual/screens/signup_screen.dart';
@@ -14,11 +13,6 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     void _onSuccess() {
       Navigator.of(context).pop();
-      TriggerMap model = TriggerModel.singleton<TriggerMap>();
-      if (model != null) {
-        model.map['setted'] = false;
-        model.notifyListeners();
-      }
     }
 
     void _onFail() {
