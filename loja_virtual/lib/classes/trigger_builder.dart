@@ -479,13 +479,12 @@ class _TriggerBuilderState<T extends TriggerModel>
       _typeKeys[type] = keys;
       _typeBuilders[type] = builders;
       _typeNullKeyBuilders[type] = nullKeyBuilders;
-      if (model._type != type)
-        model._setTree(
-          type,
-          keys,
-          builders,
-          nullKeyBuilders,
-        );
+      model._setTree(
+        type,
+        keys,
+        builders,
+        nullKeyBuilders,
+      );
     } else
       setTree();
 
