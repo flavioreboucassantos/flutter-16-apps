@@ -7,11 +7,9 @@ import 'models/video.dart';
 
 class Api {
   void search(String search) async {
-    Uri url = Uri.parse(
+    http.Response response = await http.get(Uri.parse(
         'https://www.googleapis.com/youtube/v3/search?part=snippet&q=$search'
-        '&type=video&key=$API_KEY&maxResults=10');
-    http.Response response = await http.get(url);
-
+        '&type=video&key=$API_KEY&maxResults=10'));
     decode(response);
   }
 
