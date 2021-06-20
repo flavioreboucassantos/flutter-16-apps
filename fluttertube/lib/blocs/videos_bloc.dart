@@ -1,8 +1,25 @@
 import 'dart:async';
+import 'dart:collection';
 
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:fluttertube/api.dart';
 import 'package:fluttertube/models/video.dart';
+
+class VideosLoading extends ListBase<Video> {
+  @override
+  int length = 0;
+
+  @override
+  operator [](int index) {
+    // TODO: implement []
+    throw UnimplementedError();
+  }
+
+  @override
+  void operator []=(int index, value) {
+    // TODO: implement []=
+  }
+}
 
 class VideosBloc extends BlocBase {
   final StreamController<List<Video>> _videosController =
@@ -25,7 +42,7 @@ class VideosBloc extends BlocBase {
     if (search == null) {
       videos += await api.nextPage();
     } else {
-      _videosController.sink.add(<Video>[]);
+      _videosController.sink.add(VideosLoading());
       videos = await api.search(search);
     }
     _videosController.sink.add(videos);

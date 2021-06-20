@@ -43,7 +43,13 @@ class Home extends StatelessWidget {
       body: StreamBuilder<List<Video>>(
         stream: bloc.outVideos,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.data is VideosLoading)
+            return Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
+              ),
+            );
+          else if (snapshot.hasData) {
             List<Video> data = snapshot.data ?? [];
             return ListView.builder(
               itemCount: data.length + 1,
@@ -57,9 +63,7 @@ class Home extends StatelessWidget {
                   height: 40,
                   width: 40,
                   alignment: Alignment.center,
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(Colors.red),
-                  ),
+                  child: CircularProgressIndicator(),
                 );
               },
             );
