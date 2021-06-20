@@ -11,7 +11,7 @@ class VideosBloc extends BlocBase {
       StreamController<String?>();
 
   final Api api = Api();
-  final List<Video> videos = <Video>[];
+  List<Video> videos = <Video>[];
 
   Stream<List<Video>> get outVideos => _videosController.stream;
 
@@ -22,7 +22,12 @@ class VideosBloc extends BlocBase {
   }
 
   void _search(String? search) async {
-    List<Video> videos = await api.search(search);
+    if (search == null) {
+      videos += await api.nextPage();
+    } else {
+      _videosController.sink.add(<Video>[]);
+      videos = await api.search(search);
+    }
     _videosController.sink.add(videos);
   }
 

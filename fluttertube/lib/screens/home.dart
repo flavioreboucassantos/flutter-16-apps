@@ -8,6 +8,8 @@ import 'package:fluttertube/widgets/video_tile.dart';
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final VideosBloc bloc = BlocProvider.getBloc<VideosBloc>();
+
     return Scaffold(
       appBar: AppBar(
         title: Container(
@@ -31,7 +33,7 @@ class Home extends StatelessWidget {
                 context: context,
                 delegate: DataSearch(),
               );
-              BlocProvider.getBloc<VideosBloc>().inSearch.add(result);
+              bloc.inSearch.add(result);
             },
             icon: Icon(Icons.search),
           ),
@@ -39,14 +41,26 @@ class Home extends StatelessWidget {
       ),
       backgroundColor: Colors.black87,
       body: StreamBuilder<List<Video>>(
-        stream: BlocProvider.getBloc<VideosBloc>().outVideos,
+        stream: bloc.outVideos,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             List<Video> data = snapshot.data ?? [];
             return ListView.builder(
-              itemCount: data.length,
+              itemCount: data.length + 1,
               itemBuilder: (context, index) {
-                return VideoTile(data[index]);
+                if (index < data.length)
+                  return VideoTile(data[index]);
+                else if (data.length == 0) return Container();
+
+                bloc.inSearch.add(null);
+                return Container(
+                  height: 40,
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.red),
+                  ),
+                );
               },
             );
           } else

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertube/blocs/videos_bloc.dart';
 import 'package:fluttertube/screens/home.dart';
 
-import 'api.dart';
-
 void main() {
   runApp(MyApp());
 }
