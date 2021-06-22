@@ -1,14 +1,17 @@
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertube/blocs/favorite_bloc.dart';
 import 'package:fluttertube/blocs/videos_bloc.dart';
 import 'package:fluttertube/delegates/data_search.dart';
 import 'package:fluttertube/models/video.dart';
+import 'package:fluttertube/screens/favorites.dart';
 import 'package:fluttertube/widgets/video_tile.dart';
 
 class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final VideosBloc bloc = BlocProvider.getBloc<VideosBloc>();
+    final VideosBloc videosBloc = BlocProvider.getBloc<VideosBloc>();
+    final FavoriteBloc favoriteBloc = BlocProvider.getBloc<FavoriteBloc>();
 
     return Scaffold(
       appBar: AppBar(
@@ -21,10 +24,23 @@ class Home extends StatelessWidget {
         actions: [
           Align(
             alignment: Alignment.center,
-            child: Text('0'),
+            child: StreamBuilder<Map<String, Video>>(
+              stream: favoriteBloc.outFav,
+              initialData: Map<String, Video>(),
+              builder: (context, snapshot) {
+                Map<String, Video> data = snapshot.data ?? Map<String, Video>();
+                return Text(data.length.toString());
+              },
+            ),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => Favorites(),
+                ),
+              );
+            },
             icon: Icon(Icons.star),
           ),
           IconButton(
@@ -33,7 +49,8 @@ class Home extends StatelessWidget {
                 context: context,
                 delegate: DataSearch(),
               );
-              bloc.inSearch.add(result);
+              if (result != '' || result != null)
+                videosBloc.inSearch.add(result);
             },
             icon: Icon(Icons.search),
           ),
@@ -41,7 +58,7 @@ class Home extends StatelessWidget {
       ),
       backgroundColor: Colors.black87,
       body: StreamBuilder<List<Video>>(
-        stream: bloc.outVideos,
+        stream: videosBloc.outVideos,
         builder: (context, snapshot) {
           if (snapshot.data is VideosLoading)
             return Center(
@@ -58,7 +75,7 @@ class Home extends StatelessWidget {
                   return VideoTile(data[index]);
                 else if (data.length == 0) return Container();
 
-                bloc.inSearch.add(null);
+                videosBloc.inSearch.add(null);
                 return Container(
                   height: 40,
                   width: 40,

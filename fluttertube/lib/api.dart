@@ -32,7 +32,7 @@ class Api {
       _nextToken = decoded['nextPageToken'];
 
       List<Video> videos = (decoded['items'] as List)
-          .map<Video>((data) => Video.fromJson(data))
+          .map<Video>((data) => Video.fromJsonOfServer(data))
           .toList(growable: false);
 
       return videos;
