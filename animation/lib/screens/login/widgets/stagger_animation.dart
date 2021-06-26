@@ -55,13 +55,16 @@ class StaggerAnimation extends StatelessWidget {
                 ),
                 child: _buildInside(context),
               )
-            : Container(
-                width: buttonZoomOut.value,
-                height: buttonZoomOut.value,
-                decoration: BoxDecoration(
-                  color: Color.fromRGBO(247, 64, 106, 1.0),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(buttonZoomOut.value < 1100 ? 30.0 : 0),
+            : Hero(
+                tag: 'fade',
+                child: Container(
+                  width: buttonZoomOut.value,
+                  height: buttonZoomOut.value,
+                  decoration: BoxDecoration(
+                    color: Color.fromRGBO(247, 64, 106, 1.0),
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(buttonZoomOut.value < 1100 ? 30.0 : 0),
+                    ),
                   ),
                 ),
               ),
