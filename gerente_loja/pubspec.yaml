@@ -38,6 +38,7 @@ dependencies:
   rxdart: ^0.27.1
   bloc_pattern: ^3.0.0
   shimmer: ^2.0.0
+  email_validator: ^2.0.1
 
 dev_dependencies:
   flutter_test:
