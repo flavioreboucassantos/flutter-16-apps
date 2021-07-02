@@ -8,6 +8,8 @@ class UserBloc extends BlocBase {
   final BehaviorSubject<List<Map<String, dynamic>>> _usersController =
       BehaviorSubject<List<Map<String, dynamic>>>();
 
+  Stream<List<Map<String, dynamic>>> get outUsers => _usersController.stream;
+
   final Map<String, Map<String, dynamic>> _users =
       Map<String, Map<String, dynamic>>();
 
@@ -74,8 +76,27 @@ class UserBloc extends BlocBase {
     subscription.cancel();
   }
 
+  List<Map<String, dynamic>> _filter(String search) {
+    List<Map<String, dynamic>> filteredUsers =
+        List.from(_users.values.toList(growable: false));
+
+    filteredUsers.retainWhere(
+      (user) =>
+          (user['name'] as String).toUpperCase().contains(search.toUpperCase()),
+    );
+
+    return filteredUsers;
+  }
+
   @override
   void dispose() {
     _usersController.close();
+  }
+
+  void onChangedSearch(String search) {
+    if (search.trim().isEmpty)
+      _usersController.add(_users.values.toList(growable: false));
+    else
+      _usersController.add(_filter(search.trim()));
   }
 }
