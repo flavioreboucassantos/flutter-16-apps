@@ -88,11 +88,6 @@ class UserBloc extends BlocBase {
     return filteredUsers;
   }
 
-  @override
-  void dispose() {
-    _usersController.close();
-  }
-
   void onChangedSearch(String search) {
     if (search.trim().isEmpty)
       _usersController.add(_users.values.toList(growable: false));
