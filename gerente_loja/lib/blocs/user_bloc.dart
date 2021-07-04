@@ -8,12 +8,16 @@ class UserBloc extends BlocBase {
   final BehaviorSubject<List<Map<String, dynamic>>> _usersController =
       BehaviorSubject<List<Map<String, dynamic>>>();
 
-  Stream<List<Map<String, dynamic>>> get outUsers => _usersController.stream;
-
   final Map<String, Map<String, dynamic>> _users =
       Map<String, Map<String, dynamic>>();
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Stream<List<Map<String, dynamic>>> get outUsers => _usersController.stream;
+
+  Map<String, dynamic>? getUser(String uid) {
+    return _users[uid];
+  }
 
   UserBloc() {
     _addUsersListener();
