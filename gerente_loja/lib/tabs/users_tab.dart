@@ -3,9 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:gerente_loja/blocs/user_bloc.dart';
 import 'package:gerente_loja/widgets/user_tile.dart';
 
-class UsersTab extends StatelessWidget {
+class UsersTab extends StatefulWidget {
+  @override
+  _UsersTabState createState() => _UsersTabState();
+}
+
+class _UsersTabState extends State<UsersTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final _userBloc = BlocProvider.getBloc<UserBloc>();
 
     return Column(

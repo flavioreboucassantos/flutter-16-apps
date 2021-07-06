@@ -4,9 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:gerente_loja/blocs/orders_bloc.dart';
 import 'package:gerente_loja/widgets/order_tile.dart';
 
-class OrdersTab extends StatelessWidget {
+class OrdersTab extends StatefulWidget {
+  @override
+  _OrdersTabState createState() => _OrdersTabState();
+}
+
+class _OrdersTabState extends State<OrdersTab>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  bool get wantKeepAlive => true;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     final _ordersBloc = BlocProvider.getBloc<OrdersBloc>();
 
     return Padding(

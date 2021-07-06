@@ -4,6 +4,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:gerente_loja/blocs/orders_bloc.dart';
 import 'package:gerente_loja/blocs/user_bloc.dart';
 import 'package:gerente_loja/tabs/orders_tab.dart';
+import 'package:gerente_loja/tabs/products_tab.dart';
 import 'package:gerente_loja/tabs/users_tab.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -17,6 +18,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final UserBloc _userBloc = UserBloc();
   final OrdersBloc _ordersBloc = OrdersBloc();
+
+  late final Widget _body;
 
   Widget? _buildFloating() {
     switch (_pageIndex) {
@@ -62,6 +65,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   @override
+  void initState() {
+    _body = SafeArea(
+      child: BlocProvider(
+        blocs: [
+          Bloc((i) => _userBloc),
+          Bloc((i) => _ordersBloc),
+        ],
+        dependencies: [],
+        child: PageView(
+          controller: _pageController,
+          onPageChanged: (pageIndex) {
+            setState(() {
+              _pageIndex = pageIndex;
+            });
+          },
+          children: [
+            UsersTab(),
+            OrdersTab(),
+            ProductsTab(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
   void dispose() {
     _pageController.dispose();
     super.dispose();
@@ -98,29 +127,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: BlocProvider(
-          blocs: [
-            Bloc((i) => _userBloc),
-            Bloc((i) => _ordersBloc),
-          ],
-          dependencies: [],
-          child: PageView(
-            controller: _pageController,
-            onPageChanged: (pageIndex) {
-              setState(() {
-                _pageIndex = pageIndex;
-              });
-            },
-            children: [
-              UsersTab(),
-              OrdersTab(),
-              Container(color: Colors.green),
-            ],
-          ),
-        ),
-      ),
       floatingActionButton: _buildFloating(),
+      body: _body,
     );
   }
 }
