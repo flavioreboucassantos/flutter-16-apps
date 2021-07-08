@@ -13,8 +13,19 @@ class ProductScreen extends StatelessWidget {
   ProductScreen({required this.categoryId, this.product})
       : _productBloc = ProductBloc(categoryId: categoryId, product: product);
 
+  InputDecoration _buildDecoration(String label) => InputDecoration(
+        labelText: label,
+        labelStyle: TextStyle(
+          color: Colors.grey,
+        ),
+      );
+
   @override
   Widget build(BuildContext context) {
+    final TextStyle _fieldStyle = TextStyle(
+      color: Colors.white,
+      fontSize: 16,
+    );
     return Scaffold(
       backgroundColor: Colors.grey[850],
       appBar: AppBar(
@@ -33,10 +44,43 @@ class ProductScreen extends StatelessWidget {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: EdgeInsets.all(16),
-          children: [],
-        ),
+        child: StreamBuilder<Map<String, dynamic>>(
+            stream: _productBloc.outData,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return Container();
+              Map<String, dynamic> data = snapshot.data ?? <String, dynamic>{};
+              return ListView(
+                padding: EdgeInsets.all(16),
+                children: [
+                  TextFormField(
+                    initialValue: data['title'],
+                    style: _fieldStyle,
+                    decoration: _buildDecoration('Titulo'),
+                    onSaved: (t) {},
+                    validator: (t) {},
+                  ),
+                  TextFormField(
+                    initialValue: data['description'],
+                    style: _fieldStyle,
+                    maxLines: 6,
+                    decoration: _buildDecoration('Descrição'),
+                    onSaved: (t) {},
+                    validator: (t) {},
+                  ),
+                  TextFormField(
+                    initialValue: data['price'] == null
+                        ? ''
+                        : (data['price'] as double).toStringAsFixed(2),
+                    style: _fieldStyle,
+                    decoration: _buildDecoration('Preço'),
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                    onSaved: (t) {},
+                    validator: (t) {},
+                  ),
+                ],
+              );
+            }),
       ),
     );
   }
