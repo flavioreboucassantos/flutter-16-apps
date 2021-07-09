@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
@@ -33,5 +31,6 @@ class ProductBloc extends BlocBase {
   @override
   void dispose() {
     _dataController.close();
+    super.dispose();
   }
 }
