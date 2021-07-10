@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gerente_loja/widgets/image_source_sheet.dart';
 
@@ -16,6 +19,7 @@ class ImagesWidget extends FormField<List<dynamic>> {
           builder: (state) {
             List<dynamic> value = List.of(state.value!.whereType());
             return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   height: 124,
