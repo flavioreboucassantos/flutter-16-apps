@@ -6,7 +6,11 @@ class ProductBloc extends BlocBase {
   final BehaviorSubject<Map<String, dynamic>> _dataController =
       BehaviorSubject<Map<String, dynamic>>();
 
+  final BehaviorSubject<bool> _loadingController = BehaviorSubject<bool>();
+
   Stream<Map<String, dynamic>> get outData => _dataController.stream;
+
+  Stream<bool> get outLoading => _loadingController.stream;
 
   final String categoryId;
   final DocumentSnapshot<Map<String, dynamic>>? product;
@@ -44,9 +48,19 @@ class ProductBloc extends BlocBase {
     unsavedData['images'] = images;
   }
 
+  Future<bool> saveProduct() async {
+    _loadingController.add(true);
+
+    await Future.delayed(Duration(seconds: 3));
+
+    _loadingController.add(false);
+    return true;
+  }
+
   @override
   void dispose() {
     _dataController.close();
+    _loadingController.close();
     super.dispose();
   }
 }
