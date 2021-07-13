@@ -64,15 +64,39 @@ class ProductScreen extends StatelessWidget with ProductValidator {
       fontSize: 16,
     );
     return Scaffold(
-
       backgroundColor: Colors.grey[850],
       appBar: AppBar(
         elevation: 0,
-        title: Text('Criar Produto'),
+        title: StreamBuilder<bool>(
+            stream: _productBloc.outCreated,
+            initialData: false,
+            builder: (context, snapshot) {
+              bool data = snapshot.data ?? false;
+              return Text(data ? 'Editar Produto' : 'Criar Produto');
+            }),
         actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.remove),
+          StreamBuilder<bool>(
+            stream: _productBloc.outCreated,
+            initialData: false,
+            builder: (context, snapshot) {
+              bool data = snapshot.data ?? false;
+              if (data)
+                return StreamBuilder<bool>(
+                    stream: _productBloc.outLoading,
+                    initialData: false,
+                    builder: (context, snapshot) {
+                      bool data = snapshot.data ?? false;
+                      return IconButton(
+                        onPressed: data ? null : () {
+                          _productBloc.deleteProduct();
+                          Navigator.of(context).pop();
+                        },
+                        icon: Icon(Icons.remove),
+                      );
+                    });
+              else
+                return Container();
+            },
           ),
           StreamBuilder<bool>(
               stream: _productBloc.outLoading,
