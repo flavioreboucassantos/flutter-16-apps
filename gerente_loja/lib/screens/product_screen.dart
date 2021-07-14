@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gerente_loja/blocs/product_bloc.dart';
 import 'package:gerente_loja/validators/product_validator.dart';
 import 'package:gerente_loja/widgets/images_widget.dart';
+import 'package:gerente_loja/widgets/product_sizes.dart';
 
 class ProductScreen extends StatelessWidget with ProductValidator {
   final String categoryId;
@@ -87,10 +88,12 @@ class ProductScreen extends StatelessWidget with ProductValidator {
                     builder: (context, snapshot) {
                       bool data = snapshot.data ?? false;
                       return IconButton(
-                        onPressed: data ? null : () {
-                          _productBloc.deleteProduct();
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: data
+                            ? null
+                            : () {
+                                _productBloc.deleteProduct();
+                                Navigator.of(context).pop();
+                              },
                         icon: Icon(Icons.remove),
                       );
                     });
@@ -161,6 +164,24 @@ class ProductScreen extends StatelessWidget with ProductValidator {
                             TextInputType.numberWithOptions(decimal: true),
                         onSaved: _productBloc.savePrice,
                         validator: validatePrice,
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Text(
+                        'Tamanhos',
+                        style: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
+                      ),
+                      ProductSizes(
+                        context: context,
+                        initialValue: data['sizes'],
+                        onSaved: _productBloc.saveSizes,
+                        validator: (s) {
+                          if (s!.isEmpty) return 'Adicione um tamanho';
+                        },
                       ),
                     ],
                   );

@@ -7,8 +7,8 @@ import 'package:gerente_loja/widgets/image_source_sheet.dart';
 class ImagesWidget extends FormField<List<dynamic>> {
   ImagesWidget({
     required BuildContext context,
-    void Function(List<dynamic>? l)? onSaved,
-    String? Function(List<dynamic>? l)? validator,
+    FormFieldSetter<List<dynamic>>? onSaved,
+    FormFieldValidator<List<dynamic>>? validator,
     List? initialValue = const [],
     AutovalidateMode? autovalidateMode,
   }) : super(

@@ -5,7 +5,7 @@ import 'package:rxdart/rxdart.dart';
 
 class ProductBloc extends BlocBase {
   final BehaviorSubject<Map<String, dynamic>> _dataController =
-  BehaviorSubject<Map<String, dynamic>>();
+      BehaviorSubject<Map<String, dynamic>>();
 
   final BehaviorSubject<bool> _loadingController = BehaviorSubject<bool>();
 
@@ -33,7 +33,7 @@ class ProductBloc extends BlocBase {
     } else {
       unsavedData = Map.of(product!.data() ?? <String, dynamic>{});
       unsavedData['images'] = List.of(product!.data()!['images']);
-      unsavedData['sizes'] = List.of(product!.data()!['sizes']);
+      unsavedData['sizes'] = List.of(product!.data()!['sizes']).cast<String>();
 
       _createdController.add(true);
     }
@@ -65,7 +65,13 @@ class ProductBloc extends BlocBase {
     unsavedData['images'] = images;
   }
 
-  Future _uploadImages(String productId,) async {
+  void saveSizes(List<String>? sizes) {
+    unsavedData['sizes'] = sizes;
+  }
+
+  Future _uploadImages(
+    String productId,
+  ) async {
     List<dynamic> images = unsavedData['images'] ?? [];
     for (int i = 0; i < images.length; i++) {
       if (images[i] is String) continue;
@@ -74,10 +80,7 @@ class ProductBloc extends BlocBase {
           .ref()
           .child(categoryId)
           .child(productId)
-          .child(DateTime
-          .now()
-          .millisecondsSinceEpoch
-          .toString())
+          .child(DateTime.now().millisecondsSinceEpoch.toString())
           .putFile(images[i]);
 
       await uploadTask.whenComplete(() async {
@@ -97,8 +100,7 @@ class ProductBloc extends BlocBase {
             .collection('products')
             .doc(categoryId)
             .collection('items')
-            .add(Map.from(unsavedData)
-          ..remove('images'));
+            .add(Map.from(unsavedData)..remove('images'));
         await _uploadImages(doc.id);
         await doc.update(unsavedData);
       } else {
